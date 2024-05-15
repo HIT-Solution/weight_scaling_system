@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:weight_scale/product_section.dart';
+import 'package:weight_scale/home_screen.dart';
 
 void main() {
   runApp(const MaterialApp(debugShowCheckedModeBanner: false, home: MyApp()));
@@ -33,7 +33,7 @@ class _MyAppState extends State<MyApp> {
     requestPermissions();
   }
 
-  startScan() {
+  startScan() async {
     FlutterBluePlus.startScan(timeout: const Duration(seconds: 4));
     FlutterBluePlus.scanResults.listen((results) {
       for (ScanResult result in results) {
