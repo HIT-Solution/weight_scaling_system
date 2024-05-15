@@ -1,48 +1,52 @@
 import 'package:flutter/material.dart';
 
-class HomeScreen extends StatelessWidget {
-  const HomeScreen({super.key});
-
+class ProductScreen extends StatelessWidget {
+  const ProductScreen(
+      {super.key,
+      required this.potatoWeight,
+      required this.onionWeight,
+      required this.riceWeight,
+      required this.saltWeight});
+  final String potatoWeight;
+  final String onionWeight;
+  final String riceWeight;
+  final String saltWeight;
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFE1C8C8),
-      body: SafeArea(
-        child: Padding(
-          padding: EdgeInsets.all(16),
-          child: GridView.count(
-            padding: EdgeInsets.all(16),
-            mainAxisSpacing: 10,
-            crossAxisSpacing: 10,
-            crossAxisCount: 2,
-            children: const [
-              ProductBox(
-                productName: 'Product A',
-                productImageAsset: 'assets/images/product_a.png',
-                maxWeight: '5',
-                currentWeight: '3',
-              ),
-              ProductBox(
-                productName: 'Product B',
-                productImageAsset: 'assets/images/product_b.png',
-                maxWeight: '10',
-                currentWeight: '7',
-              ),
-              ProductBox(
-                productName: 'Product C',
-                productImageAsset: 'assets/images/product_c.png',
-                maxWeight: '15',
-                currentWeight: '12',
-              ),
-              ProductBox(
-                productName: 'Product D',
-                productImageAsset: 'assets/images/product_d.png',
-                maxWeight: '20',
-                currentWeight: '10',
-              ),
-            ],
+    return Padding(
+      padding: EdgeInsets.all(16),
+      child: GridView.count(
+        padding: EdgeInsets.all(16),
+        mainAxisSpacing: 10,
+        crossAxisSpacing: 10,
+        crossAxisCount: 2,
+        childAspectRatio: .7,
+        children: [
+          ProductBox(
+            productName: 'Potato',
+            productImageAsset: 'assets/potato.jpg',
+            maxWeight: '5',
+            currentWeight: potatoWeight,
           ),
-        ),
+          ProductBox(
+            productName: 'Onion',
+            productImageAsset: 'assets/onion.jpg',
+            maxWeight: '10',
+            currentWeight: onionWeight,
+          ),
+          ProductBox(
+            productName: 'Rice',
+            productImageAsset: 'assets/rice.jpg',
+            maxWeight: '15',
+            currentWeight: riceWeight,
+          ),
+          ProductBox(
+            productName: 'Salt',
+            productImageAsset: 'assets/salt.jpg',
+            maxWeight: '20',
+            currentWeight: saltWeight,
+          ),
+        ],
       ),
     );
   }
@@ -67,7 +71,7 @@ class ProductBox extends StatelessWidget {
         0.45; // Adjusted width for two cards in a row
 
     return Container(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(16),
         width: width,
         clipBehavior: Clip.antiAlias,
         decoration: ShapeDecoration(
@@ -87,9 +91,9 @@ class ProductBox extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
-              Icons.production_quantity_limits,
-              size: 60,
+            Image.asset(
+              productImageAsset,
+              height: 100,
             ),
             const SizedBox(
               height: 4,
@@ -99,7 +103,7 @@ class ProductBox extends StatelessWidget {
               textAlign: TextAlign.center,
               style: const TextStyle(
                 color: Colors.black,
-                fontSize: 11,
+                fontSize: 14,
                 fontFamily: 'Inter',
                 fontWeight: FontWeight.w600,
               ),
@@ -111,11 +115,11 @@ class ProductBox extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 const Text(
-                  'Max weight:',
+                  'Max weight: ',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     color: Colors.black,
-                    fontSize: 10,
+                    fontSize: 12,
                     fontFamily: 'Inter',
                     fontWeight: FontWeight.w400,
                   ),
@@ -125,7 +129,7 @@ class ProductBox extends StatelessWidget {
                   textAlign: TextAlign.center,
                   style: const TextStyle(
                     color: Color(0xFF030303),
-                    fontSize: 10,
+                    fontSize: 12,
                     fontFamily: 'Inter',
                     fontWeight: FontWeight.w400,
                   ),
@@ -139,11 +143,11 @@ class ProductBox extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 const Text(
-                  'Current weight:',
+                  'Current weight: ',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     color: Colors.black,
-                    fontSize: 10,
+                    fontSize: 12,
                     fontFamily: 'Inter',
                     fontWeight: FontWeight.w400,
                   ),
@@ -153,7 +157,7 @@ class ProductBox extends StatelessWidget {
                   textAlign: TextAlign.center,
                   style: const TextStyle(
                     color: Color(0xFF030303),
-                    fontSize: 10,
+                    fontSize: 12,
                     fontFamily: 'Inter',
                     fontWeight: FontWeight.w400,
                   ),

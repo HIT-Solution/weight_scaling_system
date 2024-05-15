@@ -1,9 +1,8 @@
-import 'dart:async';
-import 'dart:typed_data';
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
-import 'package:flutter/services.dart' show rootBundle;
 import 'package:permission_handler/permission_handler.dart';
+import 'package:weight_scale/product_section.dart';
 
 void main() {
   runApp(const MaterialApp(debugShowCheckedModeBanner: false, home: MyApp()));
@@ -17,18 +16,80 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  StreamSubscription? scanSubscription;
-  BluetoothDevice? targetDevice;
-  final String targetDeviceName = "ESP32_BLE_Image_Receiver";
+  bool isScanning = false;
+  bool isConnected = false;
+
+  // UUIDs
   final String serviceUUID = "4fafc201-1fb5-459e-8fcc-c5c9c331914b";
-  final String characteristicUUID = "beb5483e-36e1-4688-b7f5-ea07361b26a8";
-  BluetoothCharacteristic? targetCharacteristic;
+  final String characteristicUUIDRx = "beb5483e-36e1-4688-b7f5-ea07361b26a8";
+  final String characteristicUUIDTx = "beb5483e-36e1-4688-b7f5-ea07361b26a9";
+
+  BluetoothDevice? connectedDevice;
+  List<BluetoothService> services = [];
 
   @override
   void initState() {
     super.initState();
-    print("run 1");
-    requestPermissions(); // Call this method here to request permissions on app start
+    requestPermissions();
+  }
+
+  startScan() {
+    FlutterBluePlus.startScan(timeout: const Duration(seconds: 4));
+    FlutterBluePlus.scanResults.listen((results) {
+      for (ScanResult result in results) {
+        print('${result.device.advName} found! rssi: ${result.rssi}');
+      }
+    });
+    FlutterBluePlus.scanResults.listen((List<ScanResult> results) {
+      for (ScanResult result in results) {
+        if (result.device.advName == 'weight_scale') {
+          stopScan();
+          connectToDevice(result.device);
+          break;
+        }
+      }
+    });
+  }
+
+  stopScan() {
+    FlutterBluePlus.stopScan();
+    setState(() {
+      isScanning = false;
+    });
+  }
+
+  connectToDevice(BluetoothDevice device) async {
+    await device.disconnect();
+    await device.connect();
+    isConnected = true;
+    setState(() {});
+    print("Device connected");
+    discoverServices(device);
+  }
+
+  Product? productData;
+
+  discoverServices(BluetoothDevice device) async {
+    List<BluetoothService> services = await device.discoverServices();
+    for (BluetoothService service in services) {
+      if (service.uuid.toString() == serviceUUID) {
+        for (BluetoothCharacteristic characteristic
+            in service.characteristics) {
+          if (characteristic.uuid.toString() == characteristicUUIDTx) {
+            characteristic.setNotifyValue(true);
+            characteristic.lastValueStream.listen((value) {
+              // Handle the received data
+              // Decode JSON and update UI
+              String jsonString = String.fromCharCodes(value);
+              setState(() {
+                productData = Product.fromJson(jsonDecode(jsonString));
+              });
+              print("Received: $jsonString");
+            });
+          }
+        }
+      }
+    }
   }
 
   Future<void> requestPermissions() async {
@@ -43,130 +104,79 @@ class _MyAppState extends State<MyApp> {
     }
   }
 
-  void startScan() {
-    print("run 4");
-    FlutterBluePlus.startScan(timeout: Duration(seconds: 5));
-
-    FlutterBluePlus.scanResults.listen((scanResult) async {
-      if (targetCharacteristic != null) return;
-      print("run 5");
-      for (ScanResult result in scanResult) {
-        print("run 6");
-        print("Found device: ${result.device.remoteId}");
-        print("Found device: ${result.device.advName}");
-        if (result.device.advName == 'ESP32_BLE_Image_Receiver') {
-          // Adjust the name as needed
-          await stopScan();
-          targetDevice = result.device;
-          connectToDevice();
-        }
-      }
-    });
-  }
-
-  Future<void> stopScan() async {
-    print("run 7");
-    await scanSubscription?.cancel();
-    scanSubscription = null;
-    await FlutterBluePlus
-        .stopScan(); // Ensure scanning is stopped before trying to connect
-    print("run end ble");
-  }
-
-  Future<void> connectToDevice() async {
-    if (targetDevice != null) {
-      await targetDevice?.disconnect();
-      await targetDevice!.connect();
-      int newMtu = await targetDevice!.requestMtu(517);
-      debugPrint("Negotiated MTU: $newMtu");
-      discoverServices();
-    }
-  }
-
-  Future<void> discoverServices() async {
-    if (targetDevice == null) return;
-    List<BluetoothService> services = await targetDevice!.discoverServices();
-    for (BluetoothService service in services) {
-      if (service.uuid.toString() == serviceUUID) {
-        for (BluetoothCharacteristic characteristic
-            in service.characteristics) {
-          if (characteristic.uuid.toString() == characteristicUUID) {
-            targetCharacteristic = characteristic;
-            break;
-          }
-        }
-      }
-    }
-  }
-
-  Future<void> sendImage() async {
-    try {
-      ByteData data = await rootBundle.load('assets/fruite.png');
-      Uint8List imageData = data.buffer.asUint8List();
-      // Split data into chunks
-      const int mtu = 20; // Check MTU size for your device/connection
-      // const int mtu = 512; // Check MTU size for your device/connection
-      int rounds = (imageData!.length / mtu).ceil();
-      print("started transmit");
-      print("started transmit");
-
-      for (int i = 0; i < rounds; i++) {
-        int start = i * mtu;
-        int end = ((i + 1) * mtu < imageData!.length)
-            ? (i + 1) * mtu
-            : imageData!.length;
-        print("start $start end $end current $i");
-        await targetCharacteristic!
-            .write(imageData!.sublist(start, end), timeout: 60);
-      }
-      print("end transmit");
-      // Optionally, send an "end" message to signal transmission completion
-      await targetCharacteristic?.write(Uint8List.fromList([101, 110, 100]),
-          withoutResponse: false, timeout: 60); // Sends "end" as ASCII
-
-      debugPrint("Image successfully sent!");
-    } on Exception catch (e) {
-      debugPrint("error get.. ${e.toString()}");
-      // TODO
-    }
-    debugPrint("the end!");
-  }
-
   @override
   Widget build(BuildContext context) {
+    String state = isConnected
+        ? "Weight Scale Connected"
+        : isScanning
+            ? "Weight Scale Scanning..."
+            : "Weight Scale Connecting...";
     return Scaffold(
+      backgroundColor: const Color(0xFFE1C8C8),
       appBar: AppBar(
-        title: const Text('BLE Image Transfer'),
+        title: const Text("Weight Scale"),
+        backgroundColor: const Color(0xFFE1C8C8),
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            ElevatedButton(
-              onPressed: () {
-                requestPermissions();
-              },
-              child: Text('Refresh ble'),
-            ),
-            SizedBox(
-              height: 100,
-            ),
-            ElevatedButton(
-              onPressed: () {
-                sendImage();
-              },
-              child: Text('Sending the image to ESP32'),
-            ),
-          ],
+      body: SafeArea(
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Expanded(
+                child: ProductScreen(
+                  potatoWeight: productData?.potato ?? "__",
+                  onionWeight: productData?.onion ?? "__",
+                  riceWeight: productData?.rice ?? "__",
+                  saltWeight: productData?.salt ?? "__",
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  children: [
+                    ElevatedButton(
+                      onPressed: isScanning ? null : requestPermissions,
+                      child: const Text("Scan"),
+                    ),
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    Container(
+                        decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(10)),
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 8, horizontal: 16),
+                        child: Text(state)),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
+}
 
-  @override
-  void dispose() {
-    stopScan();
-    targetDevice?.disconnect();
-    super.dispose();
+class Product {
+  final String potato;
+  final String onion;
+  final String rice;
+  final String salt;
+
+  Product(
+      {required this.potato,
+      required this.onion,
+      required this.rice,
+      required this.salt});
+
+  factory Product.fromJson(Map<String, dynamic> json) {
+    return Product(
+      potato: json['potato'].toString(),
+      onion: json['onion'].toString(),
+      rice: json['rice'].toString(),
+      salt: json['salt'].toString(),
+    );
   }
 }
