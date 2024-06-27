@@ -124,10 +124,10 @@ class _MyAppState extends State<MyApp> {
             children: [
               Expanded(
                 child: ProductScreen(
-                  potatoWeight: productData?.potato ?? "__",
-                  onionWeight: productData?.onion ?? "__",
-                  riceWeight: productData?.rice ?? "__",
-                  saltWeight: productData?.salt ?? "__",
+                  potatoWeight: productData?.potato ?? "5",
+                  onionWeight: productData?.onion ?? "9",
+                  riceWeight: productData?.rice ?? "",
+                  saltWeight: productData?.salt ?? "",
                 ),
               ),
               Padding(
