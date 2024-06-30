@@ -8,6 +8,8 @@ void main() {
   runApp(const MaterialApp(debugShowCheckedModeBanner: false, home: MyApp()));
 }
 
+enum BleState { initial, scanning, connecting, connected, disconnected }
+
 class MyApp extends StatefulWidget {
   const MyApp({super.key});
 
@@ -16,9 +18,9 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  bool isScanning = false;
-  bool isConnected = false;
-
+  // bool isScanning = false;
+  // bool isConnected = false;
+  BleState bleState = BleState.initial;
   // UUIDs
   final String serviceUUID = "4fafc201-1fb5-459e-8fcc-c5c9c331914b";
   final String characteristicUUIDRx = "beb5483e-36e1-4688-b7f5-ea07361b26a8";
@@ -54,15 +56,19 @@ class _MyAppState extends State<MyApp> {
   stopScan() {
     FlutterBluePlus.stopScan();
     setState(() {
-      isScanning = false;
+      bleState = BleState.connecting;
     });
   }
 
   connectToDevice(BluetoothDevice device) async {
+    setState(() {
+      bleState = BleState.connecting;
+    });
     await device.disconnect();
     await device.connect();
-    isConnected = true;
-    setState(() {});
+    setState(() {
+      bleState = BleState.connected;
+    });
     print("Device connected");
     discoverServices(device);
   }
@@ -85,6 +91,11 @@ class _MyAppState extends State<MyApp> {
                 productData = Product.fromJson(jsonDecode(jsonString));
               });
               print("Received: $jsonString");
+            }).onError((handleError) {
+              setState(() {
+                bleState = BleState.initial;
+              });
+              print("handleError: ${handleError}");
             });
           }
         }
@@ -100,17 +111,23 @@ class _MyAppState extends State<MyApp> {
       print("run 3");
       startScan();
     } on Exception catch (e) {
+      setState(() {
+        bleState = BleState.initial;
+      });
+      print("requestPermissions: ${e.toString()}");
       print("error $e");
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    String state = isConnected
+    String state = bleState == BleState.connected
         ? "Weight Scale Connected"
-        : isScanning
-            ? "Weight Scale Scanning..."
-            : "Weight Scale Connecting...";
+        : bleState == BleState.connecting
+            ? "Weight Scale Connecting..."
+            : bleState == BleState.scanning
+                ? "Weight Scale Scanning..."
+                : "Tap on scan button";
     return Scaffold(
       backgroundColor: const Color(0xFFE1C8C8),
       //  resizeToAvoidBottomInset: false,
@@ -156,7 +173,9 @@ class _MyAppState extends State<MyApp> {
                     const SizedBox(
                         width: 16), // Spacing between text and button
                     ElevatedButton(
-                      onPressed: isScanning ? null : requestPermissions,
+                      onPressed: bleState == BleState.scanning
+                          ? null
+                          : requestPermissions,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Color.fromARGB(
                             255, 242, 233, 233), // Soft red button color
@@ -179,7 +198,7 @@ class _MyAppState extends State<MyApp> {
                   potatoWeight: productData?.potato ?? "",
                   onionWeight: productData?.onion ?? "",
                   riceWeight: productData?.rice ?? "",
-                  saltWeight: productData?.salt ?? "",
+                  oatsWeight: productData?.oats ?? "",
                   isBLEConnected: productData != null,
                 ),
               ),
@@ -195,20 +214,20 @@ class Product {
   final String potato;
   final String onion;
   final String rice;
-  final String salt;
+  final String oats;
 
   Product(
       {required this.potato,
       required this.onion,
       required this.rice,
-      required this.salt});
+      required this.oats});
 
   factory Product.fromJson(Map<String, dynamic> json) {
     return Product(
       potato: json['potato'].toString(),
       onion: json['onion'].toString(),
       rice: json['rice'].toString(),
-      salt: json['salt'].toString(),
+      oats: json['oats'].toString(),
     );
   }
 }

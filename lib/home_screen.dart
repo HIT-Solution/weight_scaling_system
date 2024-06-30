@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -9,14 +10,14 @@ class ProductScreen extends StatefulWidget {
     required this.potatoWeight,
     required this.onionWeight,
     required this.riceWeight,
-    required this.saltWeight,
+    required this.oatsWeight,
     required this.isBLEConnected,
   });
 
   final String potatoWeight;
   final String onionWeight;
   final String riceWeight;
-  final String saltWeight;
+  final String oatsWeight;
   final bool isBLEConnected;
 
   @override
@@ -26,11 +27,11 @@ class ProductScreen extends StatefulWidget {
 class _ProductScreenState extends State<ProductScreen> {
   List<Product> products = [];
   bool _isShowingLowWeightDialog =
-      false; // {"potato":5,"onion":1,"rice":1,"salt":1}
+      false; // {"potato":5,"onion":1,"rice":1,"oats":1}
   final TextEditingController potatoController = TextEditingController();
   final TextEditingController onionController = TextEditingController();
   final TextEditingController riceController = TextEditingController();
-  final TextEditingController saltController = TextEditingController();
+  final TextEditingController oatsController = TextEditingController();
   late List<TextEditingController> controllers;
   @override
   void initState() {
@@ -41,7 +42,7 @@ class _ProductScreenState extends State<ProductScreen> {
       potatoController,
       onionController,
       riceController,
-      saltController
+      oatsController
     ];
     products = getProducts([1, 1, 1, 1]);
     _checkLowWeightProducts();
@@ -81,16 +82,17 @@ class _ProductScreenState extends State<ProductScreen> {
               : 0,
           index: 2),
       Product(
-          productName: 'Salt',
-          productImageAsset: 'assets/salt.jpg',
+          productName: 'Oats',
+          productImageAsset: 'assets/oats.jpg',
           minWeight: minWeights[3],
-          currentWeight: widget.saltWeight.isNotEmpty
-              ? double.parse(widget.saltWeight)
+          currentWeight: widget.oatsWeight.isNotEmpty
+              ? double.parse(widget.oatsWeight)
               : 0,
           index: 3),
     ];
   }
 
+  // sa
   void _checkLowWeightProducts() async {
     //if(context.mounted)
     print("1");
@@ -113,7 +115,7 @@ class _ProductScreenState extends State<ProductScreen> {
     }
     print("5");
     await Future.delayed(
-        const Duration(seconds: 30)); // Check again after 10 seconds
+        const Duration(seconds: 5)); // Check again after 10 seconds
     print("6");
     _checkLowWeightProducts();
   }
@@ -181,7 +183,7 @@ class _ProductScreenState extends State<ProductScreen> {
         double storedWeight =
             prefs.getDouble('${product.productName}_minWeight') ?? 1;
         print("3");
-        // {"potato":5,"onion":1,"rice":1,"salt":1}
+        // {"potato":5,"onion":1,"rice":1,"oats":1}
         //  product.minWeight = storedWeight;
         if (!controllerInited[product.index]) {
           print("4");
@@ -227,11 +229,11 @@ class _ProductScreenState extends State<ProductScreen> {
     return Padding(
       padding: const EdgeInsets.all(16),
       child: GridView.count(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 16),
         mainAxisSpacing: 10,
         crossAxisSpacing: 10,
         crossAxisCount: 2,
-        childAspectRatio: .7,
+        childAspectRatio: .62,
         children: products
             .map((product) => ProductBox(
                   product: product,
@@ -256,21 +258,6 @@ class ProductBox extends StatelessWidget {
   final Product product;
   final Function(double) onMinWeightChanged;
   final TextEditingController controller;
-
-//   @override
-//   _ProductBoxState createState() => _ProductBoxState();
-// }
-
-// class _ProductBoxState extends State<ProductBox> {
-//   late TextEditingController _controller;
-
-//   @override
-//   void initState() {
-//     super.initState();
-//     _controller = widget.controller;
-//     _controller =
-//         TextEditingController(text: widget.product.minWeight.toString());
-//   }
 
   @override
   Widget build(BuildContext context) {
@@ -307,7 +294,7 @@ class ProductBox extends StatelessWidget {
             textAlign: TextAlign.center,
             style: const TextStyle(
               color: Colors.black,
-              fontSize: 14,
+              fontSize: 16,
               fontWeight: FontWeight.w600,
             ),
           ),
@@ -323,11 +310,13 @@ class ProductBox extends StatelessWidget {
                     fontWeight: FontWeight.w400,
                   ),
                 ),
-                Flexible(
+                Expanded(
+                  // height: 60,
+                  // width: 30,
                   child: TextField(
                     controller: controller,
                     decoration: InputDecoration(
-                      hintText: 'Min weight',
+                      hintText: '',
                       border: OutlineInputBorder(),
                       contentPadding: EdgeInsets.symmetric(horizontal: 10),
                     ),
@@ -348,10 +337,10 @@ class ProductBox extends StatelessWidget {
           ),
           const SizedBox(height: 6),
           Text(
-            'Current weight: ${product.currentWeight} Kg',
+            'Current weight:\n${formatDoubleToTwoDecimals(product.currentWeight)} Kg',
             textAlign: TextAlign.center,
             style: const TextStyle(
-              fontSize: 12,
+              fontSize: 14,
               fontWeight: FontWeight.w400,
             ),
           ),
@@ -359,6 +348,10 @@ class ProductBox extends StatelessWidget {
       ),
     );
   }
+}
+
+double formatDoubleToTwoDecimals(double number) {
+  return double.parse(number.toStringAsFixed(3));
 }
 
 class Product {

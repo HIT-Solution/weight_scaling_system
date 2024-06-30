@@ -51,7 +51,7 @@ class MyCallbacks : public BLECharacteristicCallbacks {
       // Process the received data here
       // For example, you can toggle an LED based on the received value
       if (rxValue[0] == '1') {
-        Serial.println("Turning ON!");
+        Serial.println("Turning ON!"); 
         digitalWrite(LED, HIGH);
       } else if (rxValue[0] == '0') {
         Serial.println("Turning OFF!");
