@@ -124,10 +124,11 @@ class _MyAppState extends State<MyApp> {
             children: [
               Expanded(
                 child: ProductScreen(
-                  potatoWeight: productData?.potato ?? "5",
-                  onionWeight: productData?.onion ?? "9",
+                  potatoWeight: productData?.potato ?? "",
+                  onionWeight: productData?.onion ?? "",
                   riceWeight: productData?.rice ?? "",
                   saltWeight: productData?.salt ?? "",
+                  isBLEConnected: productData != null,
                 ),
               ),
               Padding(

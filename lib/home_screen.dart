@@ -8,12 +8,14 @@ class ProductScreen extends StatefulWidget {
     required this.onionWeight,
     required this.riceWeight,
     required this.saltWeight,
+    required this.isBLEConnected,
   });
 
   final String potatoWeight;
   final String onionWeight;
   final String riceWeight;
   final String saltWeight;
+  final bool isBLEConnected;
 
   @override
   State<ProductScreen> createState() => _ProductScreenState();
@@ -22,10 +24,11 @@ class ProductScreen extends StatefulWidget {
 class _ProductScreenState extends State<ProductScreen> {
   List<Product> products = [];
   bool _isShowingLowWeightDialog = false;
-
   @override
   void initState() {
     super.initState();
+    products = getProducts();
+
     _checkLowWeightProducts();
   }
 
@@ -74,9 +77,15 @@ class _ProductScreenState extends State<ProductScreen> {
   void _checkLowWeightProducts() async {
     //if(context.mounted)
     print("1");
-    products = getProducts();
     await Future.delayed(Duration(seconds: 2));
-    if (mounted) {}
+    // if (mounted) {}
+    print("widget.isBLEConnected check : ${widget.isBLEConnected}");
+    if (!widget.isBLEConnected) {
+      _checkLowWeightProducts();
+      return;
+    }
+    products = getProducts();
+
     print("2 ${products.length}");
     final lowWeightProducts =
         products.where((product) => product.hasLowWeight()).toList();
