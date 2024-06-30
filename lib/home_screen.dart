@@ -1,5 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ProductScreen extends StatefulWidget {
   const ProductScreen({
@@ -23,12 +25,25 @@ class ProductScreen extends StatefulWidget {
 
 class _ProductScreenState extends State<ProductScreen> {
   List<Product> products = [];
-  bool _isShowingLowWeightDialog = false;
+  bool _isShowingLowWeightDialog =
+      false; // {"potato":5,"onion":1,"rice":1,"salt":1}
+  final TextEditingController potatoController = TextEditingController();
+  final TextEditingController onionController = TextEditingController();
+  final TextEditingController riceController = TextEditingController();
+  final TextEditingController saltController = TextEditingController();
+  late List<TextEditingController> controllers;
   @override
   void initState() {
     super.initState();
-    products = getProducts();
-
+    // Make sure to load weights from storage first
+    //products = getProducts();
+    controllers = [
+      potatoController,
+      onionController,
+      riceController,
+      saltController
+    ];
+    products = getProducts([1, 1, 1, 1]);
     _checkLowWeightProducts();
   }
 
@@ -37,40 +52,42 @@ class _ProductScreenState extends State<ProductScreen> {
   //   super.didChangeDependencies();
   // }
 
-  List<Product> getProducts() {
+  List<Product> getProducts(List<double> minWeights) {
     print(" widget.potatoWeight");
     print(widget.potatoWeight);
     return [
       Product(
-        productName: 'Potato',
-        productImageAsset: 'assets/potato.jpg',
-        minWeight: 2,
-        currentWeight: widget.potatoWeight.isNotEmpty
-            ? double.parse(widget.potatoWeight)
-            : 0,
-      ),
+          productName: 'Potato',
+          productImageAsset: 'assets/potato.jpg',
+          minWeight: minWeights[0],
+          currentWeight: widget.potatoWeight.isNotEmpty
+              ? double.parse(widget.potatoWeight)
+              : 0,
+          index: 0),
       Product(
-        productName: 'Onion',
-        productImageAsset: 'assets/onion.jpg',
-        minWeight: 1,
-        currentWeight: widget.onionWeight.isNotEmpty
-            ? double.parse(widget.onionWeight)
-            : 0,
-      ),
+          productName: 'Onion',
+          productImageAsset: 'assets/onion.jpg',
+          minWeight: minWeights[1],
+          currentWeight: widget.onionWeight.isNotEmpty
+              ? double.parse(widget.onionWeight)
+              : 0,
+          index: 1),
       Product(
-        productName: 'Rice',
-        productImageAsset: 'assets/rice.jpg',
-        minWeight: 5,
-        currentWeight:
-            widget.riceWeight.isNotEmpty ? double.parse(widget.riceWeight) : 0,
-      ),
+          productName: 'Rice',
+          productImageAsset: 'assets/rice.jpg',
+          minWeight: minWeights[2],
+          currentWeight: widget.riceWeight.isNotEmpty
+              ? double.parse(widget.riceWeight)
+              : 0,
+          index: 2),
       Product(
-        productName: 'Salt',
-        productImageAsset: 'assets/salt.jpg',
-        minWeight: 1,
-        currentWeight:
-            widget.saltWeight.isNotEmpty ? double.parse(widget.saltWeight) : 0,
-      ),
+          productName: 'Salt',
+          productImageAsset: 'assets/salt.jpg',
+          minWeight: minWeights[3],
+          currentWeight: widget.saltWeight.isNotEmpty
+              ? double.parse(widget.saltWeight)
+              : 0,
+          index: 3),
     ];
   }
 
@@ -84,8 +101,7 @@ class _ProductScreenState extends State<ProductScreen> {
       _checkLowWeightProducts();
       return;
     }
-    products = getProducts();
-
+    await loadMinWeights();
     print("2 ${products.length}");
     final lowWeightProducts =
         products.where((product) => product.hasLowWeight()).toList();
@@ -144,6 +160,67 @@ class _ProductScreenState extends State<ProductScreen> {
     );
   }
 
+  late SharedPreferences prefs;
+  bool isInitializedPrefs = false;
+  List<bool> controllerInited = [
+    false,
+    false,
+    false,
+    false,
+  ];
+  Future<void> loadMinWeights() async {
+    try {
+      print("1");
+      if (!isInitializedPrefs) {
+        prefs = await SharedPreferences.getInstance();
+        isInitializedPrefs = true;
+      }
+      print("2");
+      List<double> minWeights = [];
+      for (var product in products) {
+        double storedWeight =
+            prefs.getDouble('${product.productName}_minWeight') ?? 1;
+        print("3");
+        // {"potato":5,"onion":1,"rice":1,"salt":1}
+        //  product.minWeight = storedWeight;
+        if (!controllerInited[product.index]) {
+          print("4");
+          controllers[product.index].text = storedWeight.toString();
+          controllerInited[product.index] = false;
+        }
+        print("5");
+        product.minWeight = storedWeight;
+        minWeights.add(storedWeight);
+      }
+      print("products weight are: ");
+      print(
+          "${minWeights[0]} ${minWeights[1]} ${minWeights[2]} ${minWeights[3]}");
+      products = getProducts(minWeights);
+
+      print("products weight 2 are: ");
+      print(
+          "${products[0].minWeight} ${products[1].minWeight} ${products[2].minWeight} ${products[3].minWeight}");
+      // setState(() {});
+    } on Exception catch (e) {
+      print("error in load min wieght $e");
+    }
+  }
+
+  void saveMinWeight(Product product) async {
+    try {
+      // final prefs = await SharedPreferences.getInstance();
+      await prefs.setDouble('${product.productName}_minWeight',
+          double.parse(controllers[product.index].text));
+      double storedWeight =
+          prefs.getDouble('${product.productName}_minWeight') ?? 1;
+      await loadMinWeights();
+      print("Saved min wit $storedWeight");
+    } on Exception catch (e) {
+      print("error in save min wieght $e");
+      // TODO
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     // _checkLowWeightProducts();
@@ -155,17 +232,45 @@ class _ProductScreenState extends State<ProductScreen> {
         crossAxisSpacing: 10,
         crossAxisCount: 2,
         childAspectRatio: .7,
-        children:
-            products.map((product) => ProductBox(product: product)).toList(),
+        children: products
+            .map((product) => ProductBox(
+                  product: product,
+                  onMinWeightChanged: (newWeight) {
+                    saveMinWeight(product);
+                  },
+                  controller: controllers[product.index],
+                ))
+            .toList(),
       ),
     );
   }
 }
 
 class ProductBox extends StatelessWidget {
-  const ProductBox({super.key, required this.product});
+  const ProductBox(
+      {super.key,
+      required this.product,
+      required this.onMinWeightChanged,
+      required this.controller});
 
   final Product product;
+  final Function(double) onMinWeightChanged;
+  final TextEditingController controller;
+
+//   @override
+//   _ProductBoxState createState() => _ProductBoxState();
+// }
+
+// class _ProductBoxState extends State<ProductBox> {
+//   late TextEditingController _controller;
+
+//   @override
+//   void initState() {
+//     super.initState();
+//     _controller = widget.controller;
+//     _controller =
+//         TextEditingController(text: widget.product.minWeight.toString());
+//   }
 
   @override
   Widget build(BuildContext context) {
@@ -203,61 +308,52 @@ class ProductBox extends StatelessWidget {
             style: const TextStyle(
               color: Colors.black,
               fontSize: 14,
-              fontFamily: 'Inter',
               fontWeight: FontWeight.w600,
             ),
           ),
           const SizedBox(height: 5),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text(
-                'Min weight: ',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: Colors.black,
-                  fontSize: 12,
-                  fontFamily: 'Inter',
-                  fontWeight: FontWeight.w400,
+          Expanded(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  'Min weight: ',
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w400,
+                  ),
                 ),
-              ),
-              Text(
-                '${product.minWeight} Kg',
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                  color: Color(0xFF030303),
-                  fontSize: 12,
-                  fontFamily: 'Inter',
-                  fontWeight: FontWeight.w400,
+                Flexible(
+                  child: TextField(
+                    controller: controller,
+                    decoration: InputDecoration(
+                      hintText: 'Min weight',
+                      border: OutlineInputBorder(),
+                      contentPadding: EdgeInsets.symmetric(horizontal: 10),
+                    ),
+                    keyboardType: TextInputType.number,
+                    onSubmitted: (value) {
+                      final double? newWeight = double.tryParse(value);
+                      if (newWeight != null) {
+                        onMinWeightChanged(newWeight);
+                        //   setState(() {
+                        product.minWeight = newWeight;
+                        //   });
+                      }
+                    },
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
           const SizedBox(height: 6),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text(
-                'Current weight: ',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: Colors.black,
-                  fontSize: 12,
-                  fontFamily: 'Inter',
-                  fontWeight: FontWeight.w400,
-                ),
-              ),
-              Text(
-                '${product.currentWeight} Kg',
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                  color: Color(0xFF030303),
-                  fontSize: 12,
-                  fontFamily: 'Inter',
-                  fontWeight: FontWeight.w400,
-                ),
-              ),
-            ],
+          Text(
+            'Current weight: ${product.currentWeight} Kg',
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w400,
+            ),
           ),
         ],
       ),
@@ -266,19 +362,19 @@ class ProductBox extends StatelessWidget {
 }
 
 class Product {
-  const Product({
+  Product({
+    required this.index,
     required this.productName,
     required this.productImageAsset,
     required this.minWeight,
     required this.currentWeight,
   });
 
+  final int index;
   final String productName;
   final String productImageAsset;
-  final double minWeight;
+  double minWeight; // Not final anymore to allow modification
   final double currentWeight;
 
-  bool hasLowWeight() {
-    return currentWeight < minWeight;
-  }
+  bool hasLowWeight() => currentWeight < minWeight;
 }

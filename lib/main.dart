@@ -113,6 +113,7 @@ class _MyAppState extends State<MyApp> {
             : "Weight Scale Connecting...";
     return Scaffold(
       backgroundColor: const Color(0xFFE1C8C8),
+      //  resizeToAvoidBottomInset: false,
       appBar: AppBar(
         title: const Text("Weight Scale"),
         backgroundColor: const Color(0xFFE1C8C8),
@@ -122,6 +123,57 @@ class _MyAppState extends State<MyApp> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
+              Padding(
+                padding:
+                    const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(12),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.1),
+                              spreadRadius: 1,
+                              blurRadius: 10,
+                            ),
+                          ],
+                        ),
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 12, horizontal: 18),
+                        child: Text(
+                          state,
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: Colors.grey[800],
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(
+                        width: 16), // Spacing between text and button
+                    ElevatedButton(
+                      onPressed: isScanning ? null : requestPermissions,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Color.fromARGB(
+                            255, 242, 233, 233), // Soft red button color
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 20, vertical: 12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                      child: const Text(
+                        "Scan",
+                        style: TextStyle(fontSize: 16),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
               Expanded(
                 child: ProductScreen(
                   potatoWeight: productData?.potato ?? "",
@@ -129,27 +181,6 @@ class _MyAppState extends State<MyApp> {
                   riceWeight: productData?.rice ?? "",
                   saltWeight: productData?.salt ?? "",
                   isBLEConnected: productData != null,
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  children: [
-                    ElevatedButton(
-                      onPressed: isScanning ? null : requestPermissions,
-                      child: const Text("Scan"),
-                    ),
-                    const SizedBox(
-                      height: 10,
-                    ),
-                    Container(
-                        decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(10)),
-                        padding: const EdgeInsets.symmetric(
-                            vertical: 8, horizontal: 16),
-                        child: Text(state)),
-                  ],
                 ),
               ),
             ],
