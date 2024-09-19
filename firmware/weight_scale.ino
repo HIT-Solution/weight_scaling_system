@@ -51,7 +51,7 @@ class MyCallbacks : public BLECharacteristicCallbacks {
       // Process the received data here
       // For example, you can toggle an LED based on the received value
       if (rxValue[0] == '1') {
-        Serial.println("Turning ON!"); 
+        Serial.println("Turning ON!");
         digitalWrite(LED, HIGH);
       } else if (rxValue[0] == '0') {
         Serial.println("Turning OFF!");
@@ -60,13 +60,14 @@ class MyCallbacks : public BLECharacteristicCallbacks {
     }
   }
 };
+
 String createJsonString() {
   // Create a DynamicJsonDocument
   DynamicJsonDocument jsonDocument(256);  // Adjust the buffer size accordingly based on your data
-  jsonDocument["potato"] = 2;
-  jsonDocument["onion"] = 1;
-  jsonDocument["rice"] = 3;
-  jsonDocument["salt"] = .500;
+  jsonDocument["product1"] = 5;
+  jsonDocument["product2"] = 20;
+  jsonDocument["product3"] = 3;
+  jsonDocument["product4"] = 2;
 
   // Serialize the JSON object to a String
   String jsonString;
@@ -112,14 +113,15 @@ void setup() {
 void loop() {
 
   String jsonStr = createJsonString();
+  //String jsonStr = "1";
 
   // Now, send the JSON string via BLE notification
   txCharacteristic->setValue((uint8_t *)jsonStr.c_str(), jsonStr.length());
   txCharacteristic->notify();
 
   Serial.print("*** Sent JSON: ");
-  Serial.println(jsonStr);
+  Serial.print(jsonStr);
   Serial.println(" ***");
 
-  delay(1000);
+  delay(5000);
 }
