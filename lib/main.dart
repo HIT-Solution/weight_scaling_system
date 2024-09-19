@@ -195,10 +195,10 @@ class _MyAppState extends State<MyApp> {
               ),
               Expanded(
                 child: ProductScreen(
-                  potatoWeight: productData?.potato ?? "",
-                  onionWeight: productData?.onion ?? "",
-                  riceWeight: productData?.rice ?? "",
-                  oatsWeight: productData?.oats ?? "",
+                  product1: productData?.product1 ?? "",
+                  product2: productData?.product2 ?? "",
+                  product3: productData?.product3 ?? "",
+                  product4: productData?.product4 ?? "",
                   isBLEConnected: productData != null,
                 ),
               ),
@@ -211,23 +211,23 @@ class _MyAppState extends State<MyApp> {
 }
 
 class Product {
-  final String potato;
-  final String onion;
-  final String rice;
-  final String oats;
+  final String product1;
+  final String product2;
+  final String product3;
+  final String product4;
 
   Product(
-      {required this.potato,
-      required this.onion,
-      required this.rice,
-      required this.oats});
+      {required this.product1,
+      required this.product2,
+      required this.product3,
+      required this.product4});
 
   factory Product.fromJson(Map<String, dynamic> json) {
     return Product(
-      potato: json['potato'].toString(),
-      onion: json['onion'].toString(),
-      rice: json['rice'].toString(),
-      oats: json['oats'].toString(),
+      product1: json['product1'].toString(),
+      product2: json['product2'].toString(),
+      product3: json['product3'].toString(),
+      product4: json['product4'].toString(),
     );
   }
 }

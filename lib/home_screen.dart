@@ -7,17 +7,17 @@ import 'package:shared_preferences/shared_preferences.dart';
 class ProductScreen extends StatefulWidget {
   const ProductScreen({
     super.key,
-    required this.potatoWeight,
-    required this.onionWeight,
-    required this.riceWeight,
-    required this.oatsWeight,
+    required this.product1,
+    required this.product2,
+    required this.product3,
+    required this.product4,
     required this.isBLEConnected,
   });
 
-  final String potatoWeight;
-  final String onionWeight;
-  final String riceWeight;
-  final String oatsWeight;
+  final String product1;
+  final String product2;
+  final String product3;
+  final String product4;
   final bool isBLEConnected;
 
   @override
@@ -36,6 +36,7 @@ class _ProductScreenState extends State<ProductScreen> {
   @override
   void initState() {
     super.initState();
+
     // Make sure to load weights from storage first
     //products = getProducts();
     controllers = [
@@ -53,49 +54,81 @@ class _ProductScreenState extends State<ProductScreen> {
   //   super.didChangeDependencies();
   // }
 
-  List<Product> getProducts(List<double> minWeights) {
-    print(" widget.potatoWeight");
-    print(widget.potatoWeight);
-    return [
-      Product(
-          productName: 'Potato',
-          productImageAsset: 'assets/potato.jpg',
-          minWeight: minWeights[0],
-          currentWeight: widget.potatoWeight.isNotEmpty
-              ? double.parse(widget.potatoWeight)
-              : 0,
-          index: 0),
-      Product(
-          productName: 'Onion',
-          productImageAsset: 'assets/onion.jpg',
-          minWeight: minWeights[1],
-          currentWeight: widget.onionWeight.isNotEmpty
-              ? double.parse(widget.onionWeight)
-              : 0,
-          index: 1),
-      Product(
-          productName: 'Rice',
-          productImageAsset: 'assets/rice.jpg',
-          minWeight: minWeights[2],
-          currentWeight: widget.riceWeight.isNotEmpty
-              ? double.parse(widget.riceWeight)
-              : 0,
-          index: 2),
-      Product(
-          productName: 'Oats',
-          productImageAsset: 'assets/oats.jpg',
-          minWeight: minWeights[3],
-          currentWeight: widget.oatsWeight.isNotEmpty
-              ? double.parse(widget.oatsWeight)
-              : 0,
-          index: 3),
-    ];
+  List<Product> getProducts(List<dynamic> minWeights) {
+    try {
+      print(" widget.product1");
+      print(widget.product1);
+      print(
+          "getProducts : ${widget.product3} ${widget.product2} ${widget.product4} ${widget.product1}");
+
+      return [
+        Product(
+            productName: 'Potato',
+            productImageAsset: 'assets/potato.jpg',
+            minWeight: minWeights[0].toDouble(),
+            currentWeight:
+                widget.product1.isNotEmpty ? double.parse(widget.product1) : 0,
+            index: 0),
+        Product(
+            productName: 'Onion',
+            productImageAsset: 'assets/onion.jpg',
+            minWeight: minWeights[1].toDouble(),
+            currentWeight:
+                widget.product2.isNotEmpty ? double.parse(widget.product2) : 0,
+            index: 1),
+        Product(
+            productName: 'Rice',
+            productImageAsset: 'assets/rice.jpg',
+            minWeight: minWeights[2].toDouble(),
+            currentWeight:
+                widget.product3.isNotEmpty ? double.parse(widget.product3) : 0,
+            index: 2),
+        Product(
+            productName: 'Oats',
+            productImageAsset: 'assets/oats.jpg',
+            minWeight: minWeights[3].toDouble(),
+            currentWeight:
+                widget.product4.isNotEmpty ? double.parse(widget.product4) : 0,
+            index: 3),
+      ];
+    } on Exception catch (e) {
+      print("getProducts error :");
+      print(e.toString());
+      return [
+        Product(
+            productName: 'Potato',
+            productImageAsset: 'assets/potato.jpg',
+            minWeight: minWeights[0].toDouble(),
+            currentWeight: 0,
+            index: 0),
+        Product(
+            productName: 'Onion',
+            productImageAsset: 'assets/onion.jpg',
+            minWeight: minWeights[1].toDouble(),
+            currentWeight: 0,
+            index: 1),
+        Product(
+            productName: 'Rice',
+            productImageAsset: 'assets/rice.jpg',
+            minWeight: minWeights[2].toDouble(),
+            currentWeight: 0,
+            index: 2),
+        Product(
+            productName: 'Oats',
+            productImageAsset: 'assets/oats.jpg',
+            minWeight: minWeights[3].toDouble(),
+            currentWeight: 0,
+            index: 3),
+      ];
+    }
   }
 
   // sa
   void _checkLowWeightProducts() async {
     //if(context.mounted)
     print("1");
+    //prefs = await SharedPreferences.getInstance();
+
     await Future.delayed(Duration(seconds: 2));
     // if (mounted) {}
     print("widget.isBLEConnected check : ${widget.isBLEConnected}");
