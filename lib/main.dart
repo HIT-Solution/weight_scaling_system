@@ -1,11 +1,14 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
+import 'package:get/get.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:weight_scale/home_screen.dart';
+import 'package:weight_scale/product_controller.dart';
+import 'package:weight_scale/product_screen.dart';
 
 void main() {
-  runApp(const MaterialApp(debugShowCheckedModeBanner: false, home: MyApp()));
+  runApp(
+      const GetMaterialApp(debugShowCheckedModeBanner: false, home: MyApp()));
 }
 
 enum BleState { initial, scanning, connecting, connected, disconnected }
@@ -20,6 +23,8 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   // bool isScanning = false;
   // bool isConnected = false;
+  final ProductController productController = Get.put(ProductController());
+
   BleState bleState = BleState.initial;
   // UUIDs
   final String serviceUUID = "4fafc201-1fb5-459e-8fcc-c5c9c331914b";
@@ -73,7 +78,7 @@ class _MyAppState extends State<MyApp> {
     discoverServices(device);
   }
 
-  Product? productData;
+  ProductModel? productData;
 
   discoverServices(BluetoothDevice device) async {
     List<BluetoothService> services = await device.discoverServices();
@@ -88,7 +93,16 @@ class _MyAppState extends State<MyApp> {
               // Decode JSON and update UI
               String jsonString = String.fromCharCodes(value);
               setState(() {
-                productData = Product.fromJson(jsonDecode(jsonString));
+                productData = ProductModel.fromJson(jsonDecode(jsonString));
+                if (productData != null) {
+                  productController.isBLEConnected.value = true;
+                  productController.productCurrentWeights.value = [
+                    double.parse(productData?.product1 ?? ""),
+                    double.parse(productData?.product2 ?? ""),
+                    double.parse(productData?.product3 ?? ""),
+                    double.parse(productData?.product4 ?? ""),
+                  ];
+                }
               });
               print("Received: $jsonString");
             }).onError((handleError) {
@@ -194,13 +208,7 @@ class _MyAppState extends State<MyApp> {
                 ),
               ),
               Expanded(
-                child: ProductScreen(
-                  product1: productData?.product1 ?? "",
-                  product2: productData?.product2 ?? "",
-                  product3: productData?.product3 ?? "",
-                  product4: productData?.product4 ?? "",
-                  isBLEConnected: productData != null,
-                ),
+                child: ProductScreen(),
               ),
             ],
           ),
@@ -210,20 +218,20 @@ class _MyAppState extends State<MyApp> {
   }
 }
 
-class Product {
+class ProductModel {
   final String product1;
   final String product2;
   final String product3;
   final String product4;
 
-  Product(
+  ProductModel(
       {required this.product1,
       required this.product2,
       required this.product3,
       required this.product4});
 
-  factory Product.fromJson(Map<String, dynamic> json) {
-    return Product(
+  factory ProductModel.fromJson(Map<String, dynamic> json) {
+    return ProductModel(
       product1: json['product1'].toString(),
       product2: json['product2'].toString(),
       product3: json['product3'].toString(),
