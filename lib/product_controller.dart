@@ -4,6 +4,8 @@ import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:weight_scale/product_screen.dart';
+import 'package:mailer/mailer.dart';
+import 'package:mailer/smtp_server.dart';
 
 class ProductController extends GetxController {
   var productNames = ['Product 1', 'Product 2', 'Product 3', 'Product 4'].obs;
@@ -20,6 +22,8 @@ class ProductController extends GetxController {
   var isBLEConnected = false.obs;
 
   final ImagePicker _picker = ImagePicker();
+  var previousLowWeightCount =
+      0.obs; // To track the number of low-weight products
 
   // Initialize data from SharedPreferences
   Future<void> loadProducts() async {
@@ -54,6 +58,22 @@ class ProductController extends GetxController {
     }
     final lowWeightProducts =
         products.where((product) => product.hasLowWeight()).toList();
+    final lowWeightCount = lowWeightProducts.length;
+
+    // Check if the low-weight count has changed and is greater than 0
+    if (lowWeightCount > 0 && lowWeightCount != previousLowWeightCount.value) {
+      // Update the previous low-weight count
+      previousLowWeightCount.value = lowWeightCount;
+
+      // Send email notification
+      sendLowWeightEmail(lowWeightProducts);
+    }
+
+    // If the count is 0, just update the previous count and do nothing else
+    if (lowWeightCount == 0) {
+      previousLowWeightCount.value = lowWeightCount;
+    }
+
     print("22 ${lowWeightProducts.length}");
     print("3");
     if (lowWeightProducts.isNotEmpty && !isShowingLowWeightDialog.value) {
@@ -122,6 +142,28 @@ class ProductController extends GetxController {
     await prefs.setString('productName_$index', name);
     await prefs.setString('productImage_$index', imagePath);
     await prefs.setDouble('minWeight_$index', minWeight);
+  }
+
+  // Function to send an email
+  Future<void> sendLowWeightEmail(List<Product> lowWeightProducts) async {
+    String username = 'hasansit48@gmail.com';
+    String password = 'your_password';
+
+    final smtpServer = gmail(username, password);
+
+    final message = Message()
+      ..from = Address(username, 'Your App')
+      ..recipients.add('kazisakib556@gmail.com')
+      ..subject = 'Low Weight Products Detected'
+      ..text =
+          'The following products have low weights:\n${lowWeightProducts.map((product) => '${product.productName} (Current weight: ${product.currentWeight} Kg, Min weight: ${product.minWeight} Kg)').join('\n')}';
+
+    try {
+      final sendReport = await send(message, smtpServer);
+      print('Message sent: ' + sendReport.toString());
+    } on MailerException catch (e) {
+      print('Message not sent. $e');
+    }
   }
 
   double formatDoubleToTwoDecimals(double number) {
