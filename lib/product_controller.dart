@@ -146,24 +146,46 @@ class ProductController extends GetxController {
 
   // Function to send an email
   Future<void> sendLowWeightEmail(List<Product> lowWeightProducts) async {
-    String username = 'hasansit48@gmail.com';
-    String password = 'your_password';
-
+    print("sendLowWeightEmail 1");
+    // String username = 'weightscale436@gmail.com';
+    String username = 'weightscale436@gmail.com';
+    print("sendLowWeightEmail 2");
+    String password = 'aget yors iieo vbal';
+    // String password = 'w@123456#';
+    print("sendLowWeightEmail 3");
     final smtpServer = gmail(username, password);
+    print("sendLowWeightEmail 4");
+    // Use the SmtpServer class to configure an SMTP server:
+    // final smtpServer = SmtpServer('smtp.domain.com');
+    // See the named arguments of SmtpServer for further configuration
+    // options.
 
+    // Create our message.
     final message = Message()
-      ..from = Address(username, 'Your App')
+      ..from = Address(username, 'Weight Scale')
       ..recipients.add('kazisakib556@gmail.com')
       ..subject = 'Low Weight Products Detected'
       ..text =
-          'The following products have low weights:\n${lowWeightProducts.map((product) => '${product.productName} (Current weight: ${product.currentWeight} Kg, Min weight: ${product.minWeight} Kg)').join('\n')}';
+          'This is a plain text version of the email. Please view in an HTML-compatible viewer.'
+      ..html = "<h1>Hey!</h1><p>The following products have low weights:<br>"
+          "${lowWeightProducts.map((product) => '${productNames[product.index]}: Current weight ${product.currentWeight} Kg, Min weight ${product.minWeight} Kg.').join('<br>')}</p>";
 
+    print("sendLowWeightEmail 6");
     try {
       final sendReport = await send(message, smtpServer);
+      print("sendLowWeightEmail 7");
       print('Message sent: ' + sendReport.toString());
+      print("sendLowWeightEmail 8");
     } on MailerException catch (e) {
-      print('Message not sent. $e');
+      print("sendLowWeightEmail 9");
+      print('Message not sent. ${e}');
+      print('Message not sent. ${e.message}');
+      for (var p in e.problems) {
+        print('Problem: ${p.code}: ${p.msg}');
+        print("sendLowWeightEmail 10");
+      }
     }
+    print("sendLowWeightEmail 101111");
   }
 
   double formatDoubleToTwoDecimals(double number) {

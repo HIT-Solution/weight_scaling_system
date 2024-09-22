@@ -143,11 +143,11 @@ class _MyAppState extends State<MyApp> {
                 ? "Weight Scale Scanning..."
                 : "Tap on scan button";
     return Scaffold(
-      backgroundColor: const Color(0xFFE1C8C8),
+      backgroundColor: Colors.white,
       //  resizeToAvoidBottomInset: false,
       appBar: AppBar(
         title: const Text("Weight Scale"),
-        backgroundColor: const Color(0xFFE1C8C8),
+        backgroundColor: Colors.white,
       ),
       body: SafeArea(
         child: Center(
@@ -191,8 +191,7 @@ class _MyAppState extends State<MyApp> {
                           ? null
                           : requestPermissions,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Color.fromARGB(
-                            255, 242, 233, 233), // Soft red button color
+                        // backgroundColor: Colors.bl, // Soft red button color
                         padding: const EdgeInsets.symmetric(
                             horizontal: 20, vertical: 12),
                         shape: RoundedRectangleBorder(
@@ -201,7 +200,9 @@ class _MyAppState extends State<MyApp> {
                       ),
                       child: const Text(
                         "Scan",
-                        style: TextStyle(fontSize: 16),
+                        style: TextStyle(
+                          fontSize: 16,
+                        ),
                       ),
                     ),
                   ],
