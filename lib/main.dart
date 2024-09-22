@@ -41,21 +41,25 @@ class _MyAppState extends State<MyApp> {
   }
 
   startScan() async {
+    print("startScan1 ");
+
     FlutterBluePlus.startScan(timeout: const Duration(seconds: 4));
+    print("startScan2 ");
     FlutterBluePlus.scanResults.listen((results) {
+      print("startScan3 ");
       for (ScanResult result in results) {
         print('${result.device.advName} found! rssi: ${result.rssi}');
       }
     });
-    FlutterBluePlus.scanResults.listen((List<ScanResult> results) {
-      for (ScanResult result in results) {
-        if (result.device.advName == 'weight_scale') {
-          stopScan();
-          connectToDevice(result.device);
-          break;
-        }
-      }
-    });
+    // FlutterBluePlus.scanResults.listen((List<ScanResult> results) {
+    //   for (ScanResult result in results) {
+    //     if (result.device.advName == 'weight_scale') {
+    //       stopScan();
+    //       connectToDevice(result.device);
+    //       break;
+    //     }
+    //   }
+    // });
   }
 
   stopScan() {

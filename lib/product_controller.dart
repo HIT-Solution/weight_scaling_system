@@ -163,7 +163,8 @@ class ProductController extends GetxController {
     // Create our message.
     final message = Message()
       ..from = Address(username, 'Weight Scale')
-      ..recipients.add('kazisakib556@gmail.com')
+      //    ..recipients.add('kazisakib556@gmail.com')
+      ..recipients.add('hasansit48@gmail.com')
       ..subject = 'Low Weight Products Detected'
       ..text =
           'This is a plain text version of the email. Please view in an HTML-compatible viewer.'
