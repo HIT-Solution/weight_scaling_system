@@ -113,7 +113,7 @@ class ProductController extends GetxController {
             itemBuilder: (context, index) {
               final product = lowWeightProducts[index];
               return Text(
-                '- ${productNames[index]} (Current weight: ${product.currentWeight} Kg, Min weight: ${product.minWeight} Kg)',
+                '- ${productNames[product.index]} (Current weight: ${product.currentWeight} Kg, Min weight: ${product.minWeight} Kg)',
               );
             },
           ),

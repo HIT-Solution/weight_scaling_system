@@ -51,15 +51,15 @@ class _MyAppState extends State<MyApp> {
         print('${result.device.advName} found! rssi: ${result.rssi}');
       }
     });
-    // FlutterBluePlus.scanResults.listen((List<ScanResult> results) {
-    //   for (ScanResult result in results) {
-    //     if (result.device.advName == 'weight_scale') {
-    //       stopScan();
-    //       connectToDevice(result.device);
-    //       break;
-    //     }
-    //   }
-    // });
+    FlutterBluePlus.scanResults.listen((List<ScanResult> results) {
+      for (ScanResult result in results) {
+        if (result.device.advName == 'weight_scale') {
+          stopScan();
+          connectToDevice(result.device);
+          break;
+        }
+      }
+    });
   }
 
   stopScan() {
