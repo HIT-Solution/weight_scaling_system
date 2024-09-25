@@ -12,8 +12,8 @@ class EditProductScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    TextEditingController nameController =
-        TextEditingController(text: productController.productNames[index]);
+    // TextEditingController nameController =
+    //     TextEditingController(text: productController.productNames[index]);
     TextEditingController minWeightController = TextEditingController(
         text: productController.minWeights[index].toString());
 
@@ -40,10 +40,11 @@ class EditProductScreen extends StatelessWidget {
             const SizedBox(height: 20),
 
             // Product name input
-            TextField(
-              controller: nameController,
-              decoration: InputDecoration(labelText: 'Product Name'),
-            ),
+            // TextField(
+            //   controller: nameController,
+            //   decoration: InputDecoration(labelText: 'Product Name'),
+            // ),
+            Text(productController.productNames[index]),
             const SizedBox(height: 20),
             TextField(
               controller: minWeightController,
@@ -58,7 +59,7 @@ class EditProductScreen extends StatelessWidget {
 
                 productController.saveProduct(
                   index,
-                  nameController.text,
+                  // nameController.text,
                   productController.productImages[index],
                   newWeight ?? productController.minWeights[index],
                 );

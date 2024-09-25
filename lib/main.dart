@@ -97,14 +97,20 @@ class _MyAppState extends State<MyApp> {
               // Decode JSON and update UI
               String jsonString = String.fromCharCodes(value);
               setState(() {
-                productData = ProductModel.fromJson(jsonDecode(jsonString));
+                productData = ProductModel.fromString(jsonString);
                 if (productData != null) {
                   productController.isBLEConnected.value = true;
+                  productController.productNames.value = [
+                    productData!.name1,
+                    productData!.name2,
+                    productData!.name3,
+                    productData!.name4,
+                  ];
                   productController.productCurrentWeights.value = [
-                    double.parse(productData?.product1 ?? ""),
-                    double.parse(productData?.product2 ?? ""),
-                    double.parse(productData?.product3 ?? ""),
-                    double.parse(productData?.product4 ?? ""),
+                    productData!.qty1,
+                    productData!.qty2,
+                    productData!.qty3,
+                    productData!.qty4,
                   ];
                 }
               });
@@ -224,23 +230,54 @@ class _MyAppState extends State<MyApp> {
 }
 
 class ProductModel {
-  final String product1;
-  final String product2;
-  final String product3;
-  final String product4;
+  final String name1;
+  final String name2;
+  final String name3;
+  final String name4;
+  final double qty1;
+  final double qty2;
+  final double qty3;
+  final double qty4;
 
-  ProductModel(
-      {required this.product1,
-      required this.product2,
-      required this.product3,
-      required this.product4});
+  ProductModel({
+    required this.name1,
+    required this.qty1,
+    required this.name2,
+    required this.qty2,
+    required this.name3,
+    required this.qty3,
+    required this.name4,
+    required this.qty4,
+  });
 
-  factory ProductModel.fromJson(Map<String, dynamic> json) {
+  // factory ProductModel.fromJson(Map<String, dynamic> json) {
+  //   return ProductModel(
+  //     name1: json['name1'].toString(),
+  //     qty1: double.tryParse(json['qty1'].toString()) ?? 0.0,
+  //     name2: json['name2'].toString(),
+  //     qty2: double.tryParse(json['qty2'].toString()) ?? 0.0,
+  //     name3: json['name3'].toString(),
+  //     qty3: double.tryParse(json['qty3'].toString()) ?? 0.0,
+  //     name4: json['name4'].toString(),
+  //     qty4: double.tryParse(json['qty4'].toString()) ?? 0.0,
+  //   );
+  // }
+
+  // New method to parse from a single string
+  factory ProductModel.fromString(String productString) {
+    List<String> productList = productString.split(',');
+    if (productList.length != 8) {
+      throw FormatException("Invalid product string format.");
+    }
     return ProductModel(
-      product1: json['product1'].toString(),
-      product2: json['product2'].toString(),
-      product3: json['product3'].toString(),
-      product4: json['product4'].toString(),
+      name1: productList[0],
+      qty1: double.tryParse(productList[1]) ?? 0.0,
+      name2: productList[2],
+      qty2: double.tryParse(productList[3]) ?? 0.0,
+      name3: productList[4],
+      qty3: double.tryParse(productList[5]) ?? 0.0,
+      name4: productList[6],
+      qty4: double.tryParse(productList[7]) ?? 0.0,
     );
   }
 }

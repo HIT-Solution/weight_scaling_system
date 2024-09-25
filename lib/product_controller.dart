@@ -17,7 +17,7 @@ class ProductController extends GetxController {
   ].obs;
 
   // Min and max weight lists
-  var minWeights = [5.0, 5.0, 5.0, 5.0].obs;
+  var minWeights = [1.0, 1.0, 1.0, 1.0].obs;
   var productCurrentWeights = [0.0, 0.0, 0.0, 0.0].obs;
   var isBLEConnected = false.obs;
 
@@ -29,7 +29,7 @@ class ProductController extends GetxController {
   Future<void> loadProducts() async {
     final prefs = await SharedPreferences.getInstance();
     for (int i = 0; i < productNames.length; i++) {
-      productNames[i] = prefs.getString('productName_$i') ?? productNames[i];
+      //   productNames[i] = prefs.getString('productName_$i') ?? productNames[i];
       productImages[i] = prefs.getString('productImage_$i') ?? productImages[i];
       minWeights[i] = prefs.getDouble('minWeight_$i') ?? minWeights[i];
     }
@@ -134,12 +134,12 @@ class ProductController extends GetxController {
   }
 
   Future<void> saveProduct(
-      int index, String name, String imagePath, double minWeight) async {
+      int index, String imagePath, double minWeight) async {
     final prefs = await SharedPreferences.getInstance();
-    productNames[index] = name;
+    // productNames[index] = name;
     productImages[index] = imagePath;
     minWeights[index] = formatDoubleToTwoDecimals(minWeight);
-    await prefs.setString('productName_$index', name);
+    // await prefs.setString('productName_$index', name);
     await prefs.setString('productImage_$index', imagePath);
     await prefs.setDouble('minWeight_$index', minWeight);
   }
@@ -197,8 +197,7 @@ class ProductController extends GetxController {
   Future<void> pickImage(int index) async {
     final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
     if (pickedFile != null) {
-      saveProduct(
-          index, productNames[index], pickedFile.path, minWeights[index]);
+      saveProduct(index, pickedFile.path, minWeights[index]);
     }
   }
 }
