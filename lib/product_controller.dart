@@ -8,6 +8,10 @@ import 'package:mailer/mailer.dart';
 import 'package:mailer/smtp_server.dart';
 
 class ProductController extends GetxController {
+  // String fromUsername = 'weightscale436@gmail.com';
+  String fromUsername = 'weightscale436@gmail.com';
+  String password = 'xahu mvst mdkn pfsf'; //app password
+  String toUsername = 'hasansit48@gmail.com';
   var productNames = ['Product 1', 'Product 2', 'Product 3', 'Product 4'].obs;
   var productImages = [
     'assets/product.png',
@@ -147,14 +151,11 @@ class ProductController extends GetxController {
   // Function to send an email
   Future<void> sendLowWeightEmail(List<Product> lowWeightProducts) async {
     print("sendLowWeightEmail 1");
-    // String username = 'weightscale436@gmail.com';
-    String username = 'weightscale436@gmail.com';
-    print("sendLowWeightEmail 2");
-    String password = 'xahu mvst mdkn pfsf';
+
     // String password = 'aget yors iieo vbal';
     // String password = 'w@123456#';
     print("sendLowWeightEmail 3");
-    final smtpServer = gmail(username, password);
+    final smtpServer = gmail(fromUsername, password);
     print("sendLowWeightEmail 4");
     // Use the SmtpServer class to configure an SMTP server:
     // final smtpServer = SmtpServer('smtp.domain.com');
@@ -163,9 +164,9 @@ class ProductController extends GetxController {
 
     // Create our message.
     final message = Message()
-      ..from = Address(username, 'Weight Scale')
+      ..from = Address(fromUsername, 'Weight Scale')
       //    ..recipients.add('kazisakib556@gmail.com')
-      ..recipients.add('hasansit48@gmail.com')
+      ..recipients.add(toUsername)
       ..subject = 'Low Weight Products Detected'
       ..text =
           'This is a plain text version of the email. Please view in an HTML-compatible viewer.'
