@@ -150,7 +150,8 @@ class ProductController extends GetxController {
     // String username = 'weightscale436@gmail.com';
     String username = 'weightscale436@gmail.com';
     print("sendLowWeightEmail 2");
-    String password = 'aget yors iieo vbal';
+    String password = 'xahu mvst mdkn pfsf';
+    // String password = 'aget yors iieo vbal';
     // String password = 'w@123456#';
     print("sendLowWeightEmail 3");
     final smtpServer = gmail(username, password);

@@ -218,7 +218,7 @@ class _MyAppState extends State<MyApp> {
                   ],
                 ),
               ),
-              Expanded(
+              const Expanded(
                 child: ProductScreen(),
               ),
             ],
@@ -267,7 +267,7 @@ class ProductModel {
   factory ProductModel.fromString(String productString) {
     List<String> productList = productString.split(',');
     if (productList.length != 8) {
-      throw FormatException("Invalid product string format.");
+      throw const FormatException("Invalid product string format.");
     }
     return ProductModel(
       name1: productList[0],
