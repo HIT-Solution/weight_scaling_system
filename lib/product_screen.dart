@@ -15,54 +15,51 @@ class ProductScreen extends StatefulWidget {
 }
 
 class _ProductScreenState extends State<ProductScreen> {
+  // Initialize the ProductController to manage product data and actions
   final ProductController productController = Get.put(ProductController());
 
   @override
   void initState() {
     super.initState();
 
+    // Load product details from storage and start monitoring for low-weight products
     productController.loadProducts();
     productController.checkLowWeightProducts(context);
   }
 
-  // @override
-  // void didChangeDependencies() {
-  //   super.didChangeDependencies();
-  // }
-
-  // sa
-
   @override
   Widget build(BuildContext context) {
-    // _checkLowWeightProducts();
     return Padding(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(16), // Add padding around the grid
       child: Obx(() {
+        // Observe changes in product data and rebuild the UI accordingly
         return GridView.count(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 16),
-          mainAxisSpacing: 10,
-          crossAxisSpacing: 10,
-          crossAxisCount: 2,
-          childAspectRatio: .62,
+          padding: const EdgeInsets.symmetric(
+              horizontal: 10, vertical: 16), // Grid padding
+          mainAxisSpacing: 10, // Space between rows
+          crossAxisSpacing: 10, // Space between columns
+          crossAxisCount: 2, // Two items per row
+          childAspectRatio: .62, // Aspect ratio of each grid item
           children: List.generate(4, (index) {
             return GestureDetector(
-                onTap: () {
-                  // Open editing options for the product
-                  Get.to(() => EditProductScreen(index: index));
-                },
-                child: ProductBox(
-                  product: Product(
-                    index: index,
-                    productName: productController.productNames[index],
-                    productImageAsset: productController.productImages[index],
-                    minWeight: productController.minWeights[index],
-                    currentWeight:
-                        productController.productCurrentWeights[index],
-                  ),
-                  // onMinWeightChanged: (newWeight) {
-                  //   productController.saveMinWeight(index, newWeight);
-                  // },
-                ));
+              onTap: () {
+                // Navigate to the EditProductScreen to edit the selected product
+                Get.to(() => EditProductScreen(index: index));
+              },
+              child: ProductBox(
+                product: Product(
+                  index: index,
+                  productName:
+                      productController.productNames[index], // Product name
+                  productImageAsset:
+                      productController.productImages[index], // Product image
+                  minWeight: productController
+                      .minWeights[index], // Minimum weight threshold
+                  currentWeight: productController
+                      .productCurrentWeights[index], // Current weight
+                ),
+              ),
+            );
           }),
         );
       }),

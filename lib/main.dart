@@ -21,38 +21,32 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  // bool isScanning = false;
-  // bool isConnected = false;
+  // Controller to manage product data and BLE status
   final ProductController productController = Get.put(ProductController());
 
+  // BLE state and UUIDs
   BleState bleState = BleState.initial;
-  // UUIDs
   final String serviceUUID = "4fafc201-1fb5-459e-8fcc-c5c9c331914b";
   final String characteristicUUIDRx = "beb5483e-36e1-4688-b7f5-ea07361b26a8";
   final String characteristicUUIDTx = "beb5483e-36e1-4688-b7f5-ea07361b26a9";
 
   BluetoothDevice? connectedDevice;
   List<BluetoothService> services = [];
+  ProductModel? productData;
 
   @override
   void initState() {
     super.initState();
-    requestPermissions();
+    requestPermissions(); // Request necessary permissions and start scanning
   }
 
-  startScan() async {
-    print("startScan1 ");
-
+  // Start scanning for BLE devices
+  void startScan() async {
+    print("Starting BLE scan...");
     FlutterBluePlus.startScan(timeout: const Duration(seconds: 4));
-    print("startScan2 ");
     FlutterBluePlus.scanResults.listen((results) {
-      print("startScan3 ");
       for (ScanResult result in results) {
-        print('${result.device.advName} found! rssi: ${result.rssi}');
-      }
-    });
-    FlutterBluePlus.scanResults.listen((List<ScanResult> results) {
-      for (ScanResult result in results) {
+        print('Device found: ${result.device.advName}, RSSI: ${result.rssi}');
         if (result.device.advName == 'weight_scale') {
           stopScan();
           connectToDevice(result.device);
@@ -62,29 +56,30 @@ class _MyAppState extends State<MyApp> {
     });
   }
 
-  stopScan() {
+  // Stop scanning for BLE devices
+  void stopScan() {
     FlutterBluePlus.stopScan();
     setState(() {
       bleState = BleState.connecting;
     });
   }
 
-  connectToDevice(BluetoothDevice device) async {
+  // Connect to the selected BLE device
+  void connectToDevice(BluetoothDevice device) async {
     setState(() {
       bleState = BleState.connecting;
     });
-    await device.disconnect();
-    await device.connect();
+    await device.disconnect(); // Ensure any previous connections are cleared
+    await device.connect(); // Connect to the device
     setState(() {
       bleState = BleState.connected;
     });
     print("Device connected");
-    discoverServices(device);
+    discoverServices(device); // Discover services after connection
   }
 
-  ProductModel? productData;
-
-  discoverServices(BluetoothDevice device) async {
+  // Discover services and characteristics of the connected device
+  void discoverServices(BluetoothDevice device) async {
     List<BluetoothService> services = await device.discoverServices();
     for (BluetoothService service in services) {
       if (service.uuid.toString() == serviceUUID) {
@@ -93,8 +88,7 @@ class _MyAppState extends State<MyApp> {
           if (characteristic.uuid.toString() == characteristicUUIDTx) {
             characteristic.setNotifyValue(true);
             characteristic.lastValueStream.listen((value) {
-              // Handle the received data
-              // Decode JSON and update UI
+              // Handle received data and update UI
               String jsonString = String.fromCharCodes(value);
               setState(() {
                 productData = ProductModel.fromString(jsonString);
@@ -114,12 +108,12 @@ class _MyAppState extends State<MyApp> {
                   ];
                 }
               });
-              print("Received: $jsonString");
-            }).onError((handleError) {
+              print("Data received: $jsonString");
+            }).onError((error) {
               setState(() {
                 bleState = BleState.initial;
               });
-              print("handleError: ${handleError}");
+              print("Error: $error");
             });
           }
         }
@@ -127,34 +121,33 @@ class _MyAppState extends State<MyApp> {
     }
   }
 
+  // Request necessary permissions for BLE and location
   Future<void> requestPermissions() async {
     try {
-      print("run 2");
+      print("Requesting permissions...");
       await Permission.bluetooth.request();
       await Permission.location.request();
-      print("run 3");
-      startScan();
-    } on Exception catch (e) {
+      startScan(); // Start scanning after permissions are granted
+    } catch (e) {
       setState(() {
         bleState = BleState.initial;
       });
-      print("requestPermissions: ${e.toString()}");
-      print("error $e");
+      print("Error requesting permissions: $e");
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    String state = bleState == BleState.connected
+    String stateMessage = bleState == BleState.connected
         ? "Weight Scale Connected"
         : bleState == BleState.connecting
-            ? "Weight Scale Connecting..."
+            ? "Connecting to Weight Scale..."
             : bleState == BleState.scanning
-                ? "Weight Scale Scanning..."
-                : "Tap on scan button";
+                ? "Scanning for Weight Scale..."
+                : "Tap the Scan button to start.";
+
     return Scaffold(
       backgroundColor: Colors.white,
-      //  resizeToAvoidBottomInset: false,
       appBar: AppBar(
         title: const Text("Weight Scale"),
         backgroundColor: Colors.white,
@@ -186,7 +179,7 @@ class _MyAppState extends State<MyApp> {
                         padding: const EdgeInsets.symmetric(
                             vertical: 12, horizontal: 18),
                         child: Text(
-                          state,
+                          stateMessage,
                           style: TextStyle(
                             fontSize: 16,
                             color: Colors.grey[800],
@@ -201,7 +194,6 @@ class _MyAppState extends State<MyApp> {
                           ? null
                           : requestPermissions,
                       style: ElevatedButton.styleFrom(
-                        // backgroundColor: Colors.bl, // Soft red button color
                         padding: const EdgeInsets.symmetric(
                             horizontal: 20, vertical: 12),
                         shape: RoundedRectangleBorder(
@@ -219,7 +211,7 @@ class _MyAppState extends State<MyApp> {
                 ),
               ),
               const Expanded(
-                child: ProductScreen(),
+                child: ProductScreen(), // Display the product list
               ),
             ],
           ),
@@ -249,19 +241,6 @@ class ProductModel {
     required this.name4,
     required this.qty4,
   });
-
-  // factory ProductModel.fromJson(Map<String, dynamic> json) {
-  //   return ProductModel(
-  //     name1: json['name1'].toString(),
-  //     qty1: double.tryParse(json['qty1'].toString()) ?? 0.0,
-  //     name2: json['name2'].toString(),
-  //     qty2: double.tryParse(json['qty2'].toString()) ?? 0.0,
-  //     name3: json['name3'].toString(),
-  //     qty3: double.tryParse(json['qty3'].toString()) ?? 0.0,
-  //     name4: json['name4'].toString(),
-  //     qty4: double.tryParse(json['qty4'].toString()) ?? 0.0,
-  //   );
-  // }
 
   // New method to parse from a single string
   factory ProductModel.fromString(String productString) {
