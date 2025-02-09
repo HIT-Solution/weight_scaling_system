@@ -10,7 +10,7 @@ import 'package:mailer/smtp_server.dart';
 class ProductController extends GetxController {
   // Email credentials for sending notifications
   String fromUsername = 'weightscale436@gmail.com';
-  String password = 'xahu mvst mdkn pfsf'; // App-specific password for Gmail
+  String password = 'hnad tvsw ijxv qpzy'; // App-specific password for Gmail
   String toUsername = 'hasansit48@gmail.com';
 
   // Observable lists for managing product data
