@@ -11,7 +11,8 @@ class ProductController extends GetxController {
   // Email credentials for sending notifications
   String fromUsername = 'weightscale436@gmail.com';
   String password = 'hnad tvsw ijxv qpzy'; // App-specific password for Gmail
-  String toUsername = 'hasansit48@gmail.com';
+  String toUsername = 'vishal.desae@gmail.com';
+  //String toUsername = 'hasansit48@gmail.com';
 
   // Observable lists for managing product data
   var productNames = ['Product 1', 'Product 2', 'Product 3', 'Product 4'].obs;

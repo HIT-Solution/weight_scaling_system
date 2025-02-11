@@ -207,6 +207,31 @@ class _MyAppState extends State<MyApp> {
                         ),
                       ),
                     ),
+                    // ElevatedButton(
+                    //   onPressed: () {
+                    //     productController.sendLowWeightEmail([
+                    //       Product(
+                    //           index: 0,
+                    //           productName: "Apple",
+                    //           productImageAsset: "",
+                    //           minWeight: 20,
+                    //           currentWeight: 30)
+                    //     ]);
+                    //   },
+                    //   style: ElevatedButton.styleFrom(
+                    //     padding: const EdgeInsets.symmetric(
+                    //         horizontal: 20, vertical: 12),
+                    //     shape: RoundedRectangleBorder(
+                    //       borderRadius: BorderRadius.circular(10),
+                    //     ),
+                    //   ),
+                    //   child: const Text(
+                    //     "Send email test",
+                    //     style: TextStyle(
+                    //       fontSize: 16,
+                    //     ),
+                    //   ),
+                    // ),
                   ],
                 ),
               ),
