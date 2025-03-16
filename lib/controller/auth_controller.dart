@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class AuthController extends GetxController {
@@ -13,19 +14,44 @@ class AuthController extends GetxController {
     _firebaseUser.bindStream(_auth.authStateChanges());
   }
 
-  Future<void> createUser(String email, String password) async {
+  var isLoading = false.obs;
+
+  Future<void> createUser(
+      String email, String password, BuildContext context) async {
     try {
-      await _auth.createUserWithEmailAndPassword(email: email, password: password);
-      // Optionally, update the username
+      isLoading.value = true;
+      await FirebaseAuth.instance.createUserWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+      Get.snackbar("Success", "Account created successfully!",
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.green,
+          colorText: Colors.white);
+      Navigator.pop(context);
     } catch (e) {
-      Get.snackbar("Error creating account", e.toString());
+      Get.snackbar("Error", e.toString(),
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.red,
+          colorText: Colors.white);
+    } finally {
+      isLoading.value = false;
     }
   }
 
   Future<void> login(String email, String password) async {
     try {
-      await _auth.signInWithEmailAndPassword(email: email, password: password);
+      isLoading.value = true;
+
+      final response = await _auth.signInWithEmailAndPassword(
+          email: email, password: password);
+      print(response.user?.email);
+      print(response.user?.uid);
+      print(response.user?.displayName);
+      isLoading.value = false;
     } catch (e) {
+      isLoading.value = false;
+
       Get.snackbar("Error signing in", e.toString());
     }
   }

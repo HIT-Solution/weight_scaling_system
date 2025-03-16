@@ -16,8 +16,9 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
     if (!_formKey.currentState!.validate()) return;
 
     setState(() => isLoading = true);
-
+    print("send pass");
     try {
+      print("send pass 33");
       await FirebaseAuth.instance
           .sendPasswordResetEmail(email: emailController.text.trim());
       Get.snackbar(
@@ -28,8 +29,10 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
         snackPosition: SnackPosition.BOTTOM,
         margin: const EdgeInsets.all(15),
       );
-      Get.back();
+      print("send pass 55533");
+      Navigator.pop(context);
     } on FirebaseAuthException catch (e) {
+      print("send pass 55");
       Get.snackbar(
         "Error",
         e.message ?? "Something went wrong!",
@@ -38,7 +41,9 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
         snackPosition: SnackPosition.BOTTOM,
         margin: const EdgeInsets.all(15),
       );
+      print("send pass 59");
     }
+    print("send pass 5900");
 
     setState(() => isLoading = false);
   }
@@ -54,9 +59,9 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
         //  elevation: 0,
       ),
       body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 24),
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          //    mainAxisAlignment: MainAxisAlignment.center,
           children: [
             const Text(
               "Enter your email and we'll send you a link to reset your password.",
