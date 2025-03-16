@@ -7,7 +7,8 @@ class SignUpPage extends StatelessWidget {
   final AuthController _authController = Get.put(AuthController());
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
-  final TextEditingController confirmPasswordController = TextEditingController();
+  final TextEditingController confirmPasswordController =
+      TextEditingController();
   final TextEditingController usernameController = TextEditingController();
 
   SignUpPage({super.key});
@@ -24,8 +25,10 @@ class SignUpPage extends StatelessWidget {
               const SizedBox(height: 100),
               const Text(
                 "Sign Up",
-                style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, 
-                color: Colors.blue),
+                style: TextStyle(
+                  fontSize: 28, fontWeight: FontWeight.bold,
+                  //color: Colors.blue
+                ),
               ),
               // const SizedBox(height: 50),
               // TextField(
@@ -78,7 +81,8 @@ class SignUpPage extends StatelessWidget {
                 onPressed: () {
                   Get.back();
                   if (emailController.text.isNotEmpty &&
-                      passwordController.text == confirmPasswordController.text &&
+                      passwordController.text ==
+                          confirmPasswordController.text &&
                       passwordController.text.isNotEmpty) {
                     _authController.createUser(
                         usernameController.text, emailController.text);

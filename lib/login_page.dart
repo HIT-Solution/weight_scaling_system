@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:weight_scale_v2/home_page.dart';
+import 'package:weight_scale_v2/pages/forgot_password_page.dart';
 import 'auth_controller.dart';
 import 'signup_page.dart'; // Assume you have a SignUpPage defined similarly
 
@@ -23,7 +24,10 @@ class LoginPage extends StatelessWidget {
               const SizedBox(height: 100),
               const Text(
                 "Login",
-                style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.deepPurple),
+                style: TextStyle(
+                  fontSize: 28,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               const SizedBox(height: 50),
               TextField(
@@ -52,19 +56,22 @@ class LoginPage extends StatelessWidget {
               ElevatedButton(
                 onPressed: () {
                   Get.to(HomePage());
-                  if (emailController.text.isNotEmpty && passwordController.text.isNotEmpty) {
-                    _authController.login(emailController.text, passwordController.text);
+                  if (emailController.text.isNotEmpty &&
+                      passwordController.text.isNotEmpty) {
+                    _authController.login(
+                        emailController.text, passwordController.text);
                   }
                 },
                 child: const Text("Login"),
                 style: ElevatedButton.styleFrom(
-             //     backgroundColor: Colors.deepPurple,
-                  minimumSize: Size(double.infinity, 50), // double.infinity is the width and 50 is the height
+                  //     backgroundColor: Colors.deepPurple,
+                  minimumSize: Size(double.infinity,
+                      50), // double.infinity is the width and 50 is the height
                 ),
               ),
               TextButton(
                 onPressed: () {
-                  // Implement Forgot Password functionality
+                  Get.to(() => ForgotPasswordPage());
                   // _authController.resetPassword(emailController.text);
                 },
                 child: const Text("Forgot Password?"),
