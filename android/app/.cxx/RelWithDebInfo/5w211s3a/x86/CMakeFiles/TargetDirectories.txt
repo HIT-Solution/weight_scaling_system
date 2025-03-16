@@ -1,0 +1,2 @@
+H:/Flutter Projects/weight_scale_v2/android/app/.cxx/RelWithDebInfo/5w211s3a/x86/CMakeFiles/edit_cache.dir
+H:/Flutter Projects/weight_scale_v2/android/app/.cxx/RelWithDebInfo/5w211s3a/x86/CMakeFiles/rebuild_cache.dir
