@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'product_controller.dart';
+import '../controller/product_controller.dart';
 
 class EditProductScreen extends StatelessWidget {
   final int index;

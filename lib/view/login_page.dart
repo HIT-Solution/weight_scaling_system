@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:weight_scale_v2/home_page.dart';
-import 'package:weight_scale_v2/pages/forgot_password_page.dart';
-import 'auth_controller.dart';
+import 'package:weight_scale_v2/view/home_page.dart';
+import 'package:weight_scale_v2/view/forgot_password_page.dart';
+import '../controller/auth_controller.dart';
 import 'signup_page.dart'; // Assume you have a SignUpPage defined similarly
 
 class LoginPage extends StatelessWidget {

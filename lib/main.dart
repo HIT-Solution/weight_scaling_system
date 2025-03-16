@@ -1,11 +1,11 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:weight_scale_v2/auth_controller.dart';
-import 'package:weight_scale_v2/home_page.dart';
-import 'package:weight_scale_v2/login_page.dart';
-import 'package:weight_scale_v2/product_controller.dart';
-import 'package:weight_scale_v2/product_screen.dart';
+import 'package:weight_scale_v2/controller/auth_controller.dart';
+import 'package:weight_scale_v2/view/home_page.dart';
+import 'package:weight_scale_v2/view/login_page.dart';
+import 'package:weight_scale_v2/controller/product_controller.dart';
+import 'package:weight_scale_v2/view/product_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
