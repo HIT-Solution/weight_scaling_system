@@ -5,64 +5,52 @@ import 'package:weight_scale_v2/view/edit_product_screen.dart';
 import 'package:weight_scale_v2/controller/product_controller.dart';
 
 class ProductScreen extends StatefulWidget {
-  const ProductScreen({
-    super.key,
-  });
+  const ProductScreen({super.key});
 
   @override
   State<ProductScreen> createState() => _ProductScreenState();
 }
 
 class _ProductScreenState extends State<ProductScreen> {
+
   final ProductController productController = Get.put(ProductController());
 
   @override
   void initState() {
     super.initState();
-
     productController.loadProducts();
     productController.checkLowWeightProducts(context);
   }
 
-  // @override
-  // void didChangeDependencies() {
-  //   super.didChangeDependencies();
-  // }
-
-  // sa
-
   @override
   Widget build(BuildContext context) {
-    // _checkLowWeightProducts();
     return Padding(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(10),
       child: Obx(() {
-        return GridView.count(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 16),
-          mainAxisSpacing: 10,
-          crossAxisSpacing: 10,
-          crossAxisCount: 2,
-          childAspectRatio: .62,
-          children: List.generate(4, (index) {
+        return GridView.builder(
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2, // 2 cards per row
+            crossAxisSpacing: 10,
+            mainAxisSpacing: 10,
+            childAspectRatio: 0.8,
+          ),
+          itemCount: productController.productNames.length,
+          itemBuilder: (context, index) {
             return GestureDetector(
-                onTap: () {
-                  // Open editing options for the product
-                  Get.to(() => EditProductScreen(index: index));
-                },
-                child: ProductBox(
-                  product: Product(
-                    index: index,
-                    productName: productController.productNames[index],
-                    productImageAsset: productController.productImages[index],
-                    minWeight: productController.minWeights[index],
-                    currentWeight:
-                        productController.productCurrentWeights[index],
-                  ),
-                  // onMinWeightChanged: (newWeight) {
-                  //   productController.saveMinWeight(index, newWeight);
-                  // },
-                ));
-          }),
+              onTap: () {
+                Get.to(() => EditProductScreen(index: index));
+              },
+              child: ProductBox(
+                product: Product(
+                  index: index,
+                  productName: productController.productNames[index],
+                  productImageAsset: productController.productImages[index],
+                  minWeight: productController.minWeights[index],
+                  currentWeight: productController.productCurrentWeights[index],
+                ),
+              ),
+            );
+          },
         );
       }),
     );
@@ -70,75 +58,80 @@ class _ProductScreenState extends State<ProductScreen> {
 }
 
 class ProductBox extends StatelessWidget {
-  const ProductBox({
-    super.key,
-    required this.product,
-    // required this.onMinWeightChanged,
-    // required this.controller
-  });
+  const ProductBox({super.key, required this.product});
 
   final Product product;
-  // final Function(double) onMinWeightChanged;
-  // final TextEditingController controller;
 
   @override
   Widget build(BuildContext context) {
-    double width = MediaQuery.of(context).size.width * 0.45;
+    final bool isExpired = product.hasLowWeight();
 
     return Container(
-      padding: const EdgeInsets.all(16),
-      width: width,
-      clipBehavior: Clip.antiAlias,
-      decoration: ShapeDecoration(
+      decoration: BoxDecoration(
         color: Colors.white,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(15),
-        ),
-        shadows: [
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
           BoxShadow(
-            color: const Color(0x19000000),
-            blurRadius: 4,
-            offset: const Offset(0, 4),
-            spreadRadius: 0,
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 6,
+            offset: Offset(0, 4),
           ),
         ],
       ),
       child: Column(
-        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Image.asset(
-          //   product.productImageAsset,
-          //   height: 100,
-          // ),
-          product.productImageAsset.contains('assets/')
-              ? Image.asset(product.productImageAsset, height: 100)
-              : Image.file(File(product.productImageAsset), height: 100),
-          const SizedBox(height: 4),
-          Text(
-            product.productName,
-            textAlign: TextAlign.center,
-            style: const TextStyle(
-              color: Colors.black,
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
+          Stack(
+            children: [
+              ClipRRect(
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+                child: Container(
+                  height: 120,
+                  width: double.infinity,
+                  child: product.productImageAsset.contains('assets/')
+                      ? Image.asset(product.productImageAsset, fit: BoxFit.cover)
+                      : Image.file(File(product.productImageAsset), fit: BoxFit.cover),
+                ),
+              ),
+              if (isExpired)
+                Positioned(
+                  top: 8,
+                  right: 8,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.red),
+                      borderRadius: BorderRadius.circular(20),
+                      color: Colors.white,
+                    ),
+                    child: const Text(
+                      'Expired',
+                      style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold, fontSize: 12),
+                    ),
+                  ),
+                ),
+            ],
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+            child: Text(
+              product.productName,
+              style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: Colors.black87,
+              ),
+              overflow: TextOverflow.ellipsis,
             ),
           ),
-          const SizedBox(height: 6),
-          Text(
-            'Min Weight:\n${product.minWeight} Kg',
-            textAlign: TextAlign.center,
-            style: const TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w300,
-            ),
-          ),
-          const SizedBox(height: 6),
-          Text(
-            'Current weight:\n${product.currentWeight} Kg',
-            textAlign: TextAlign.center,
-            style: const TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w400,
+          Padding(
+            padding: const EdgeInsets.only(left: 10, right: 10, bottom: 10),
+            child: Text(
+              'Current Weight : ${product.currentWeight}gm',
+              style: const TextStyle(
+                fontSize: 13,
+                color: Colors.black54,
+              ),
             ),
           ),
         ],
@@ -159,7 +152,7 @@ class Product {
   final int index;
   final String productName;
   final String productImageAsset;
-  double minWeight; // Not final anymore to allow modification
+  double minWeight;
   final double currentWeight;
 
   bool hasLowWeight() => currentWeight < minWeight;

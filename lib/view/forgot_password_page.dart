@@ -16,11 +16,10 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
     if (!_formKey.currentState!.validate()) return;
 
     setState(() => isLoading = true);
-    print("send pass");
     try {
-      print("send pass 33");
       await FirebaseAuth.instance
           .sendPasswordResetEmail(email: emailController.text.trim());
+
       Get.snackbar(
         "Success",
         "Password reset email sent! Check your inbox.",
@@ -29,10 +28,9 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
         snackPosition: SnackPosition.BOTTOM,
         margin: const EdgeInsets.all(15),
       );
-      print("send pass 55533");
+
       Navigator.pop(context);
     } on FirebaseAuthException catch (e) {
-      print("send pass 55");
       Get.snackbar(
         "Error",
         e.message ?? "Something went wrong!",
@@ -41,72 +39,91 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
         snackPosition: SnackPosition.BOTTOM,
         margin: const EdgeInsets.all(15),
       );
-      print("send pass 59");
     }
-    print("send pass 5900");
-
     setState(() => isLoading = false);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      //   backgroundColor: Colors.grey[100],
       appBar: AppBar(
-        title: const Text("Forgot Password"),
-        centerTitle: true,
-        //  backgroundColor: Colors.blue,
-        //  elevation: 0,
+        leading: BackButton(color: Colors.black),
+        backgroundColor: Colors.white,
+        elevation: 0,
       ),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+      backgroundColor: Colors.white,
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
         child: Column(
-          //    mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
+            Image.asset(
+              "assets/forgot_password.png",
+              height: 250,
+            ),
+            const SizedBox(height: 20),
             const Text(
-              "Enter your email and we'll send you a link to reset your password.",
+              "Forgot Password?",
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 10),
+            const Text(
+              "Don’t worry it happens! Please enter your email,\nwe will send a link to reset your password.",
+              style: TextStyle(fontSize: 14, color: Colors.black87),
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
             ),
             const SizedBox(height: 30),
             Form(
               key: _formKey,
-              child: TextFormField(
-                controller: emailController,
-                keyboardType: TextInputType.emailAddress,
-                decoration: InputDecoration(
-                  labelText: "Email Address",
-                  prefixIcon: const Icon(Icons.email, color: Colors.blue),
-                  border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12)),
-                  filled: true,
-                  fillColor: Colors.white,
-                ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return "Please enter your email";
-                  } else if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
-                    return "Enter a valid email";
-                  }
-                  return null;
-                },
-              ),
-            ),
-            const SizedBox(height: 20),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: isLoading ? null : sendPasswordResetEmail,
-                style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12)),
-                  backgroundColor: Colors.blue,
-                ),
-                child: isLoading
-                    ? const CircularProgressIndicator(color: Colors.white)
-                    : const Text("Send Reset Link",
-                        style: TextStyle(fontSize: 16)),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  const Text(
+                    "Email:",
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold, fontSize: 14),
+                  ),
+                  const SizedBox(height: 8),
+                  TextFormField(
+                    controller: emailController,
+                    keyboardType: TextInputType.emailAddress,
+                    decoration: InputDecoration(
+                      hintText: "Enter your Email",
+                      filled: true,
+                      fillColor: Colors.grey.shade100,
+                      contentPadding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return "Please enter your email";
+                      } else if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
+                        return "Enter a valid email";
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 25),
+                  ElevatedButton(
+                    onPressed: isLoading ? null : sendPasswordResetEmail,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blue,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30),
+                      ),
+                    ),
+                    child: isLoading
+                        ? const CircularProgressIndicator(color: Colors.white)
+                        : const Text(
+                      "Send Code",
+                      style: TextStyle(fontSize: 16),
+                    ),
+                  ),
+                ],
               ),
             ),
           ],

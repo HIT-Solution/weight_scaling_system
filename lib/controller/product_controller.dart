@@ -6,13 +6,18 @@ import 'package:image_picker/image_picker.dart';
 import 'package:weight_scale_v2/view/product_screen.dart';
 
 class ProductController extends GetxController {
-  var productNames = ['Product 1', 'Product 2', 'Product 3', 'Product 4'].obs;
+  var productNames = <String>['Product 1', 'Product 2', 'Product 3', 'Product 4'].obs;
+
   var productImages = [
     'assets/product.png',
     'assets/product.png',
     'assets/product.png',
     'assets/product.png',
   ].obs;
+
+
+
+
 
   // Min and max weight lists
   var minWeights = [5.0, 5.0, 5.0, 5.0].obs;

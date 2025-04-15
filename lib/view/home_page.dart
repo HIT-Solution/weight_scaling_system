@@ -1,3 +1,4 @@
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:weight_scale_v2/controller/product_controller.dart';
@@ -24,10 +25,35 @@ class _HomePageState extends State<HomePage> {
   BleState bleState = BleState.initial;
   final User? user = FirebaseAuth.instance.currentUser;
 
+
+  // final TextEditingController _dataController = TextEditingController();
+  // final DatabaseReference _dbRef = FirebaseDatabase.instance.ref().child("entries");
+
+
+  // void _addData() {
+  //   final String data = _dataController.text.trim();
+  //   print('1');
+  //   if (data.isNotEmpty) {
+  //     print('2');
+  //     // Push data with unique ID
+  //     _dbRef.push().set({"value": data}).then((_) {
+  //       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Data Added")));
+  //       print('3');
+  //       _dataController.clear();
+  //     }).catchError((error) {
+  //       print('4');
+  //       print(error);
+  //       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Failed: $error")));
+  //     });
+  //   }
+  // }
+
   void _logout() async {
     await FirebaseAuth.instance.signOut();
     // Get.offAllNamed('/login'); // Navigate to login page after logout
   }
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -47,23 +73,55 @@ class _HomePageState extends State<HomePage> {
       drawer: Drawer(
         child: Column(
           children: [
-            UserAccountsDrawerHeader(
-              decoration: const BoxDecoration(color: Colors.blue),
-              accountName: Text(user?.tenantId ?? ""),
-              accountEmail: Text(user?.email ?? "Email not available"),
-              currentAccountPicture: const CircleAvatar(
-                backgroundColor: Colors.white,
-                child: Icon(Icons.person, size: 50, color: Colors.blue),
+            // Top Blue Section
+            Container(
+              color: Colors.blue.shade300,
+              padding: const EdgeInsets.symmetric(vertical: 40),
+              width: double.infinity,
+              child: Column(
+                children: [
+                  const CircleAvatar(
+                    radius: 40,
+                    backgroundColor: Colors.pinkAccent,
+                    child: Icon(Icons.person, size: 50, color: Colors.white),
+                  ),
+                  const SizedBox(height: 10),
+                  Text(
+                    user?.tenantId ?? "Tenant Name",
+                    style: const TextStyle(
+                        fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    user?.email ?? "Email not available",
+                    style: const TextStyle(fontSize: 14, color: Colors.white),
+                  ),
+                ],
               ),
             ),
-            ListTile(
-              leading: const Icon(Icons.exit_to_app, color: Colors.red),
-              title: const Text("Logout", style: TextStyle(color: Colors.red)),
-              onTap: _logout,
+
+            // White Section with Actions
+            Expanded(
+              child: Container(
+                color: Colors.white,
+                child: Column(
+                  children: [
+
+                    
+                    const Divider(height: 1),
+                    ListTile(
+                      leading: const Icon(Icons.logout, color: Colors.red),
+                      title: const Text("Logout", style: TextStyle(color: Colors.red)),
+                      onTap: _logout,
+                    ),
+                  ],
+                ),
+              ),
             ),
           ],
         ),
       ),
+
       body: SafeArea(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -73,6 +131,47 @@ class _HomePageState extends State<HomePage> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
+
+                  Expanded(
+                    child: TextField(
+                      //onChanged: (value) => productController.filterProducts(value),
+                      decoration: InputDecoration(
+                        labelText: 'Search Products',
+                        suffixIcon: Icon(Icons.search),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(color: Colors.blueAccent),
+                        ),
+                        filled: true,
+                        fillColor: Colors.white,
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(width: 10),
+
+                  ElevatedButton(
+                    onPressed: () {
+                      // Implement the action that should be taken on button press
+                      // searchController.filterData(searchController.searchQuery.value);
+                    },
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 16),
+                      backgroundColor: Color(0xFF0079D8), // Set the background color
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                    child: const Text(
+                      "Search",
+                      style: TextStyle(fontSize: 16, color: Colors.white), // Optional: ensure text is visible
+                    ),
+                  ),
+
+
+
+
+                  /*
                   Expanded(
                     child: Container(
                       decoration: BoxDecoration(
@@ -94,7 +193,9 @@ class _HomePageState extends State<HomePage> {
                       ),
                     ),
                   ),
+
                   const SizedBox(width: 16),
+
                   ElevatedButton(
                     onPressed: bleState == BleState.scanning ? null : null,
                     style: ElevatedButton.styleFrom(
@@ -106,9 +207,37 @@ class _HomePageState extends State<HomePage> {
                     ),
                     child: const Text("Scan", style: TextStyle(fontSize: 16)),
                   ),
+
+
+
+                   */
+
+
                 ],
               ),
+
+
             ),
+            // TextField(
+            //   controller: _dataController,
+            //   decoration: InputDecoration(
+            //     labelText: 'Add data',
+            //     border: OutlineInputBorder(
+            //       borderRadius: BorderRadius.circular(12),
+            //       borderSide: BorderSide(color: Colors.blueAccent),
+            //     ),
+            //     filled: true,
+            //     fillColor: Colors.white,
+            //   ),
+            // ),
+            // SizedBox(height: 20),
+            // ElevatedButton(
+            //   onPressed: _addData,
+            //   child: Text("Add"),
+            // ),
+
+
+
             Expanded(child: ProductScreen()),
           ],
         ),
@@ -116,6 +245,8 @@ class _HomePageState extends State<HomePage> {
     );
   }
 }
+
+
 
 class ProductModel {
   final String product1;
