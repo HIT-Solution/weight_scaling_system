@@ -5,7 +5,7 @@ import 'package:weight_scale_v2/controller/auth_controller.dart';
 import 'package:weight_scale_v2/view/home_page.dart';
 import 'package:weight_scale_v2/view/login_page.dart';
 import 'package:weight_scale_v2/controller/product_controller.dart';
-import 'package:weight_scale_v2/view/product_screen.dart';
+import 'package:weight_scale_v2/view/products_view.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

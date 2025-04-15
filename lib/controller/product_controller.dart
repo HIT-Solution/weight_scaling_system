@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:weight_scale_v2/view/product_screen.dart';
+import 'package:weight_scale_v2/view/products_view.dart';
 
 class ProductController extends GetxController {
   var productNames = <String>['Product 1', 'Product 2', 'Product 3', 'Product 4'].obs;

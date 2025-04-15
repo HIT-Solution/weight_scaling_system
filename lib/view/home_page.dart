@@ -2,14 +2,14 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:weight_scale_v2/controller/product_controller.dart';
-import 'package:weight_scale_v2/view/product_screen.dart';
+import 'package:weight_scale_v2/view/products_view.dart';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:weight_scale_v2/controller/product_controller.dart';
-import 'package:weight_scale_v2/view/product_screen.dart';
+import 'package:weight_scale_v2/view/products_view.dart';
 
 enum BleState { initial, scanning, connecting, connected, disconnected }
 
@@ -238,7 +238,9 @@ class _HomePageState extends State<HomePage> {
 
 
 
-            Expanded(child: ProductScreen()),
+
+
+            Expanded(child: ProductView()),
           ],
         ),
       ),

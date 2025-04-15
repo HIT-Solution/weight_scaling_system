@@ -1,19 +1,29 @@
 import 'dart:io';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:weight_scale_v2/view/edit_product_screen.dart';
 import 'package:weight_scale_v2/controller/product_controller.dart';
 
-class ProductScreen extends StatefulWidget {
-  const ProductScreen({super.key});
+import '../controller/device_controller.dart';
+import '../model/product_model.dart';
+import '../model/product_with_weight_model.dart';
+import '../model/scale_model.dart';
+
+class ProductView extends StatefulWidget {
+  const ProductView({super.key});
 
   @override
-  State<ProductScreen> createState() => _ProductScreenState();
+  State<ProductView> createState() => _ProductViewState();
 }
 
-class _ProductScreenState extends State<ProductScreen> {
+class _ProductViewState extends State<ProductView> {
 
   final ProductController productController = Get.put(ProductController());
+
+  final deviceController = Get.put(DeviceController());
+
+
 
   @override
   void initState() {
@@ -27,44 +37,47 @@ class _ProductScreenState extends State<ProductScreen> {
     return Padding(
       padding: const EdgeInsets.all(10),
       child: Obx(() {
+        if (deviceController.productList.isEmpty) {
+          return const Center(child: Text("No products available"));
+        }
+
         return GridView.builder(
+          padding: const EdgeInsets.all(10),
+          itemCount: deviceController.productList.length,
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2, // 2 cards per row
+            crossAxisCount: 2,
             crossAxisSpacing: 10,
             mainAxisSpacing: 10,
             childAspectRatio: 0.8,
           ),
-          itemCount: productController.productNames.length,
           itemBuilder: (context, index) {
+            final product = deviceController.productList[index];
+
             return GestureDetector(
               onTap: () {
                 Get.to(() => EditProductScreen(index: index));
               },
-              child: ProductBox(
-                product: Product(
-                  index: index,
-                  productName: productController.productNames[index],
-                  productImageAsset: productController.productImages[index],
-                  minWeight: productController.minWeights[index],
-                  currentWeight: productController.productCurrentWeights[index],
-                ),
-              ),
+              child: ProductBox(product: deviceController.productList[index],),
             );
           },
         );
-      }),
+      })
+
+
+
     );
   }
 }
 
+
 class ProductBox extends StatelessWidget {
   const ProductBox({super.key, required this.product});
 
-  final Product product;
+  final ProductWithWeight product;
 
   @override
   Widget build(BuildContext context) {
-    final bool isExpired = product.hasLowWeight();
+    final bool isExpired = true;
 
     return Container(
       decoration: BoxDecoration(
@@ -88,9 +101,7 @@ class ProductBox extends StatelessWidget {
                 child: Container(
                   height: 120,
                   width: double.infinity,
-                  child: product.productImageAsset.contains('assets/')
-                      ? Image.asset(product.productImageAsset, fit: BoxFit.cover)
-                      : Image.file(File(product.productImageAsset), fit: BoxFit.cover),
+                  child: Image.network(product.picture)
                 ),
               ),
               if (isExpired)
@@ -115,7 +126,7 @@ class ProductBox extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
             child: Text(
-              product.productName,
+              product.name,
               style: const TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
@@ -139,7 +150,6 @@ class ProductBox extends StatelessWidget {
     );
   }
 }
-
 class Product {
   Product({
     required this.index,
@@ -157,3 +167,4 @@ class Product {
 
   bool hasLowWeight() => currentWeight < minWeight;
 }
+

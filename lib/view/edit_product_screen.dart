@@ -184,7 +184,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
                           controller: tempController,
                           keyboardType: TextInputType.number,
                           decoration: const InputDecoration(
-                            hintText: "Enter minimum weight (gm)",
+                            hintText: "Enter minimum weight (kg)",
                           ),
                         ),
                         actions: [
@@ -282,3 +282,5 @@ class _CardRow extends StatelessWidget {
     );
   }
 }
+
+
