@@ -11,6 +11,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:weight_scale_v2/controller/product_controller.dart';
 import 'package:weight_scale_v2/view/products_view.dart';
 
+import 'network_password_screen.dart';
+
 enum BleState { initial, scanning, connecting, connected, disconnected }
 
 class HomePage extends StatefulWidget {
@@ -25,10 +27,8 @@ class _HomePageState extends State<HomePage> {
   BleState bleState = BleState.initial;
   final User? user = FirebaseAuth.instance.currentUser;
 
-
   // final TextEditingController _dataController = TextEditingController();
   // final DatabaseReference _dbRef = FirebaseDatabase.instance.ref().child("entries");
-
 
   // void _addData() {
   //   final String data = _dataController.text.trim();
@@ -53,8 +53,6 @@ class _HomePageState extends State<HomePage> {
     // Get.offAllNamed('/login'); // Navigate to login page after logout
   }
 
-
-
   @override
   Widget build(BuildContext context) {
     String state = bleState == BleState.connected
@@ -69,7 +67,39 @@ class _HomePageState extends State<HomePage> {
       backgroundColor: Colors.white,
       appBar: AppBar(
         title: const Text("Weight Scale"),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 8),
+            child: InkWell(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) =>   NetworkPasswordScreen(),
+                  ),
+                );
+              },
+              borderRadius: BorderRadius.circular(30),
+              child: Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  // You can change color
+                  borderRadius: BorderRadius.circular(10),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.white.withOpacity(0.3),
+                      blurRadius: 5,
+                      offset: const Offset(0, 3),
+                    ),
+                  ],
+                ),
+                child: const Icon(Icons.add, size: 28, color: Colors.black),
+              ),
+            ),
+          ),
+        ],
       ),
+
       drawer: Drawer(
         child: Column(
           children: [
@@ -89,7 +119,9 @@ class _HomePageState extends State<HomePage> {
                   Text(
                     user?.tenantId ?? "Tenant Name",
                     style: const TextStyle(
-                        fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white),
                   ),
                   const SizedBox(height: 4),
                   Text(
@@ -106,12 +138,11 @@ class _HomePageState extends State<HomePage> {
                 color: Colors.white,
                 child: Column(
                   children: [
-
-                    
                     const Divider(height: 1),
                     ListTile(
                       leading: const Icon(Icons.logout, color: Colors.red),
-                      title: const Text("Logout", style: TextStyle(color: Colors.red)),
+                      title: const Text("Logout",
+                          style: TextStyle(color: Colors.red)),
                       onTap: _logout,
                     ),
                   ],
@@ -121,7 +152,6 @@ class _HomePageState extends State<HomePage> {
           ],
         ),
       ),
-
       body: SafeArea(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -131,7 +161,6 @@ class _HomePageState extends State<HomePage> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-
                   Expanded(
                     child: TextField(
                       //onChanged: (value) => productController.filterProducts(value),
@@ -147,29 +176,29 @@ class _HomePageState extends State<HomePage> {
                       ),
                     ),
                   ),
-
                   const SizedBox(width: 10),
-
                   ElevatedButton(
                     onPressed: () {
                       // Implement the action that should be taken on button press
                       // searchController.filterData(searchController.searchQuery.value);
                     },
                     style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 16),
-                      backgroundColor: Color(0xFF0079D8), // Set the background color
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 22, vertical: 16),
+                      backgroundColor:
+                          Color(0xFF0079D8), // Set the background color
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10),
                       ),
                     ),
                     child: const Text(
                       "Search",
-                      style: TextStyle(fontSize: 16, color: Colors.white), // Optional: ensure text is visible
+                      style: TextStyle(
+                          fontSize: 16,
+                          color:
+                              Colors.white), // Optional: ensure text is visible
                     ),
                   ),
-
-
-
 
                   /*
                   Expanded(
@@ -211,12 +240,8 @@ class _HomePageState extends State<HomePage> {
 
 
                    */
-
-
                 ],
               ),
-
-
             ),
             // TextField(
             //   controller: _dataController,
@@ -236,10 +261,6 @@ class _HomePageState extends State<HomePage> {
             //   child: Text("Add"),
             // ),
 
-
-
-
-
             Expanded(child: ProductView()),
           ],
         ),
@@ -247,8 +268,6 @@ class _HomePageState extends State<HomePage> {
     );
   }
 }
-
-
 
 class ProductModel {
   final String product1;
