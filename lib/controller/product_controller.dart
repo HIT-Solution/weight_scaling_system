@@ -15,6 +15,7 @@ class ProductController extends GetxController {
     'assets/product.png',
   ].obs;
 
+  var searchQuery = ''.obs;
 
 
 

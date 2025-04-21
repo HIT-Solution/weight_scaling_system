@@ -19,7 +19,7 @@ class NetworkPasswordScreen extends StatefulWidget {
 class _NetworkPasswordScreenState extends State<NetworkPasswordScreen> {
   final TextEditingController _ssidController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _deviceNameController = TextEditingController();
+  // final TextEditingController _deviceNameController = TextEditingController();
 
   bool _isLoading = false;
   bool _isPasswordVisible = false; // Toggles password visibility
@@ -69,7 +69,7 @@ class _NetworkPasswordScreenState extends State<NetworkPasswordScreen> {
       });
 
       _showSnackbar(
-          title: "  ", message: " "
+          title: "Wifi", message: "Connected"
 
       );
 
@@ -83,8 +83,8 @@ class _NetworkPasswordScreenState extends State<NetworkPasswordScreen> {
       //
     } catch (e) {
       _showSnackbar(
-          title: "",
-          message: ""
+          title: "Wifi not connected",
+          message: "Please check your Wifi-SSID and Password"
       );
       setState(() => _isLoading = false);
     }

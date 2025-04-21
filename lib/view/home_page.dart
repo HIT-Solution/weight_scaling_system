@@ -163,7 +163,7 @@ class _HomePageState extends State<HomePage> {
                 children: [
                   Expanded(
                     child: TextField(
-                      //onChanged: (value) => productController.filterProducts(value),
+                      onChanged: (value) => productController.searchQuery.value = value,
                       decoration: InputDecoration(
                         labelText: 'Search Products',
                         suffixIcon: Icon(Icons.search),
@@ -175,6 +175,7 @@ class _HomePageState extends State<HomePage> {
                         fillColor: Colors.white,
                       ),
                     ),
+
                   ),
                   const SizedBox(width: 10),
                   ElevatedButton(

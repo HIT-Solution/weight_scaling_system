@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
 import 'package:firebase_database/firebase_database.dart';
 
@@ -24,7 +25,9 @@ class DeviceController extends GetxController {
   }
 
   void listenToScalesAndBuildProductList() {
-    databaseRef.child('users/user1001/scales').onValue.listen((event) async {
+    final userId = FirebaseAuth.instance.currentUser?.uid;
+
+    databaseRef.child('users/$userId/scales').onValue.listen((event) async {
       if (!event.snapshot.exists) return;
 
       final raw = event.snapshot.value;

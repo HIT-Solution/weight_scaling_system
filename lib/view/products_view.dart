@@ -37,27 +37,33 @@ class _ProductViewState extends State<ProductView> {
     return Padding(
       padding: const EdgeInsets.all(10),
       child: Obx(() {
-        if (deviceController.productList.isEmpty) {
-          return const Center(child: Text("No products available"));
+        final query = productController.searchQuery.value.toLowerCase();
+
+        final filteredProducts = deviceController.productList.where((product) {
+          return product.name.toLowerCase().contains(query);
+        }).toList();
+
+        if (filteredProducts.isEmpty) {
+          return const Center(child: Text("No matching products found"));
         }
 
         return GridView.builder(
           padding: const EdgeInsets.all(10),
-          itemCount: deviceController.productList.length,
+          itemCount: filteredProducts.length,
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 2,
             crossAxisSpacing: 10,
             mainAxisSpacing: 10,
-            childAspectRatio: 0.8,
+            childAspectRatio: 0.7,
           ),
           itemBuilder: (context, index) {
-            final product = deviceController.productList[index];
+            final product = filteredProducts[index];
 
             return GestureDetector(
               onTap: () {
                 Get.to(() => EditProductScreen(index: index));
               },
-              child: ProductBox(product: deviceController.productList[index],),
+              child: ProductBox(product: product),
             );
           },
         );
@@ -75,9 +81,18 @@ class ProductBox extends StatelessWidget {
 
   final ProductWithWeight product;
 
+
   @override
   Widget build(BuildContext context) {
-    final bool isExpired = true;
+    final DateTime now = DateTime.now();
+    final DateTime? expireDate = DateTime.tryParse(product.expiredDate.trim());
+
+    final bool isExpired = expireDate != null && now.isAfter(expireDate);
+
+    print('Now: $now');
+    print('Expire Date: $expireDate');
+    print('isExpired: $isExpired');
+
 
     return Container(
       decoration: BoxDecoration(
@@ -101,7 +116,7 @@ class ProductBox extends StatelessWidget {
                 child: Container(
                   height: 120,
                   width: double.infinity,
-                  child: Image.network(product.picture)
+                  child: Image.network(product.picture, fit: BoxFit.cover),
                 ),
               ),
               if (isExpired)
@@ -117,7 +132,10 @@ class ProductBox extends StatelessWidget {
                     ),
                     child: const Text(
                       'Expired',
-                      style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold, fontSize: 12),
+                      style: TextStyle(
+                          color: Colors.red,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 12),
                     ),
                   ),
                 ),
@@ -138,7 +156,17 @@ class ProductBox extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.only(left: 10, right: 10, bottom: 10),
             child: Text(
-              'Current Weight : ${product.currentWeight}gm',
+              'Current Weight : ${product.currentWeight}kg',
+              style: const TextStyle(
+                fontSize: 13,
+                color: Colors.black54,
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(left: 10, right: 10, bottom: 10),
+            child: Text(
+              'Expire Date: ${product.expiredDate}',
               style: const TextStyle(
                 fontSize: 13,
                 color: Colors.black54,
@@ -149,7 +177,10 @@ class ProductBox extends StatelessWidget {
       ),
     );
   }
+
+
 }
+
 class Product {
   Product({
     required this.index,
