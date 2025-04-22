@@ -81,104 +81,126 @@ class ProductBox extends StatelessWidget {
 
   final ProductWithWeight product;
 
-
   @override
   Widget build(BuildContext context) {
-    final DateTime now = DateTime.now();
-    final DateTime? expireDate = DateTime.tryParse(product.expiredDate.trim());
+    final DatabaseReference productRef = FirebaseDatabase.instance
+        .ref()
+        .child('products')
+        .child(product.rfidTag); // Make sure this is a valid key!
 
-    final bool isExpired = expireDate != null && now.isAfter(expireDate);
+    return StreamBuilder<DatabaseEvent>(
+      stream: productRef.onValue,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        }
 
-    print('Now: $now');
-    print('Expire Date: $expireDate');
-    print('isExpired: $isExpired');
+        if (snapshot.hasError) {
+          return const Center(child: Text("Error loading product"));
+        }
 
+        if (!snapshot.hasData || snapshot.data?.snapshot.value == null) {
+          return const Center(child: Text("Product not found"));
+        }
 
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 6,
-            offset: Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Stack(
-            children: [
-              ClipRRect(
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-                child: Container(
-                  height: 120,
-                  width: double.infinity,
-                  child: Image.network(product.picture, fit: BoxFit.cover),
+        try {
+          final productData = Map<String, dynamic>.from(
+            snapshot.data!.snapshot.value as Map,
+          );
+
+          final String updatedExpiredDate = productData['expiredDate'] ?? '';
+          final DateTime now = DateTime.now();
+          final DateTime? expireDate = DateTime.tryParse(updatedExpiredDate.trim());
+          final bool isExpired = expireDate != null && now.isAfter(expireDate);
+
+          return Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(20),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.05),
+                  blurRadius: 6,
+                  offset: Offset(0, 4),
                 ),
-              ),
-              if (isExpired)
-                Positioned(
-                  top: 8,
-                  right: 8,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.red),
-                      borderRadius: BorderRadius.circular(20),
-                      color: Colors.white,
+              ],
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Stack(
+                  children: [
+                    ClipRRect(
+                      borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+                      child: Container(
+                        height: 120,
+                        width: double.infinity,
+                        child: Image.network(product.picture, fit: BoxFit.cover),
+                      ),
                     ),
-                    child: const Text(
-                      'Expired',
-                      style: TextStyle(
-                          color: Colors.red,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 12),
+                    if (isExpired)
+                      Positioned(
+                        top: 8,
+                        right: 8,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          decoration: BoxDecoration(
+                            border: Border.all(color: Colors.red),
+                            borderRadius: BorderRadius.circular(20),
+                            color: Colors.white,
+                          ),
+                          child: const Text(
+                            'Expired',
+                            style: TextStyle(
+                                color: Colors.red,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 12),
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                  child: Text(
+                    product.name,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black87,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(left: 10, right: 10, bottom: 10),
+                  child: Text(
+                    'Current Weight : ${product.currentWeight}kg',
+                    style: const TextStyle(
+                      fontSize: 13,
+                      color: Colors.black54,
                     ),
                   ),
                 ),
-            ],
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-            child: Text(
-              product.name,
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: Colors.black87,
-              ),
-              overflow: TextOverflow.ellipsis,
+                Padding(
+                  padding: const EdgeInsets.only(left: 10, right: 10, bottom: 10),
+                  child: Text(
+                    'Expire Date: $updatedExpiredDate',
+                    style: const TextStyle(
+                      fontSize: 13,
+                      color: Colors.black54,
+                    ),
+                  ),
+                ),
+              ],
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(left: 10, right: 10, bottom: 10),
-            child: Text(
-              'Current Weight : ${product.currentWeight}kg',
-              style: const TextStyle(
-                fontSize: 13,
-                color: Colors.black54,
-              ),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(left: 10, right: 10, bottom: 10),
-            child: Text(
-              'Expire Date: ${product.expiredDate}',
-              style: const TextStyle(
-                fontSize: 13,
-                color: Colors.black54,
-              ),
-            ),
-          ),
-        ],
-      ),
+          );
+        } catch (e) {
+          return Center(child: Text("Parsing error: $e"));
+        }
+      },
     );
   }
-
-
 }
 
 class Product {

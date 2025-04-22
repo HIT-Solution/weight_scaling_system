@@ -4,6 +4,12 @@ import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:weight_scale_v2/view/products_view.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:firebase_database/firebase_database.dart';
+
+
+
 
 class ProductController extends GetxController {
   var productNames = <String>['Product 1', 'Product 2', 'Product 3', 'Product 4'].obs;
@@ -18,6 +24,7 @@ class ProductController extends GetxController {
   var searchQuery = ''.obs;
 
 
+  final ImagePicker picker = ImagePicker(); // not _picker
 
 
   // Min and max weight lists
@@ -38,6 +45,15 @@ class ProductController extends GetxController {
       minWeights[i] = prefs.getDouble('minWeight_$i') ?? minWeights[i];
     }
   }
+
+  Future<String> uploadImageToFirebase(String filePath, String productName) async {
+    final file = File(filePath);
+    final fileName = "${DateTime.now().millisecondsSinceEpoch}_$productName.jpg";
+    final storageRef = FirebaseStorage.instance.ref().child('product_images/$fileName');
+    final uploadTask = await storageRef.putFile(file);
+    return await uploadTask.ref.getDownloadURL();
+  }
+
 
   void checkLowWeightProducts(BuildContext context) async {
     //if(context.mounted)
@@ -136,17 +152,32 @@ class ProductController extends GetxController {
     );
     isShowingLowWeightDialog.value = false;
   }
-
   Future<void> saveProduct(
-      int index, String name, String imagePath, double minWeight) async {
+      int index,
+      String name,
+      String imagePathOrUrl,
+      double minWeight
+      ) async {
     final prefs = await SharedPreferences.getInstance();
     productNames[index] = name;
-    productImages[index] = imagePath;
+    productImages[index] = imagePathOrUrl;
     minWeights[index] = formatDoubleToTwoDecimals(minWeight);
+
     await prefs.setString('productName_$index', name);
-    await prefs.setString('productImage_$index', imagePath);
+    await prefs.setString('productImage_$index', imagePathOrUrl);
     await prefs.setDouble('minWeight_$index', minWeight);
+
+    // Save to Realtime Database
+    final dbRef = FirebaseDatabase.instance.ref();
+    final rfidTag = "tag${index + 1}";
+    await dbRef.child('products/$rfidTag').update({
+      'name': name,
+      'picture': imagePathOrUrl,
+      'minimumWeight': minWeight,
+    });
   }
+
+
 
   // Function to send an email
   // Future<void> sendLowWeightEmail(List<Product> lowWeightProducts) async {
