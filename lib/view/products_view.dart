@@ -4,11 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:weight_scale_v2/view/edit_product_screen.dart';
 import 'package:weight_scale_v2/controller/product_controller.dart';
-
 import '../controller/device_controller.dart';
 import '../model/product_model.dart';
 import '../model/product_with_weight_model.dart';
 import '../model/scale_model.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 
 class ProductView extends StatefulWidget {
   const ProductView({super.key});
@@ -18,18 +18,11 @@ class ProductView extends StatefulWidget {
 }
 
 class _ProductViewState extends State<ProductView> {
-
-  final ProductController productController = Get.put(ProductController());
-
-  final deviceController = Get.put(DeviceController());
-
-
+  final DeviceController deviceController = Get.put(DeviceController());
 
   @override
   void initState() {
     super.initState();
-    productController.loadProducts();
-    productController.checkLowWeightProducts(context);
   }
 
   @override
@@ -37,7 +30,7 @@ class _ProductViewState extends State<ProductView> {
     return Padding(
       padding: const EdgeInsets.all(10),
       child: Obx(() {
-        final query = productController.searchQuery.value.toLowerCase();
+        final query = deviceController.searchQuery.value.toLowerCase();
 
         final filteredProducts = deviceController.productList.where((product) {
           return product.name.toLowerCase().contains(query);
@@ -59,22 +52,29 @@ class _ProductViewState extends State<ProductView> {
           itemBuilder: (context, index) {
             final product = filteredProducts[index];
 
+
             return GestureDetector(
-              onTap: () {
-                Get.to(() => EditProductScreen(index: index));
-              },
-              child: ProductBox(product: product),
+                onTap: () {
+                  final product = filteredProducts[index];
+                  final nameController = TextEditingController(text: product.name);
+                  final minController = TextEditingController(text: product.minimumWeight.toString());
+                  final selectedDate = DateTime.tryParse(product.expiredDate) ?? DateTime.now();
+                  final referenceId = 'Ref-${product.rfidTag}';
+
+
+                  Get.to(() => EditProductScreen(
+                    index: index
+                  ));
+                },
+
+                child: ProductBox(product: product),
             );
           },
         );
-      })
-
-
-
+      }),
     );
   }
 }
-
 
 class ProductBox extends StatelessWidget {
   const ProductBox({super.key, required this.product});
@@ -86,7 +86,7 @@ class ProductBox extends StatelessWidget {
     final DatabaseReference productRef = FirebaseDatabase.instance
         .ref()
         .child('products')
-        .child(product.rfidTag); // Make sure this is a valid key!
+        .child(product.rfidTag);
 
     return StreamBuilder<DatabaseEvent>(
       stream: productRef.onValue,
@@ -121,7 +121,7 @@ class ProductBox extends StatelessWidget {
                 BoxShadow(
                   color: Colors.black.withOpacity(0.05),
                   blurRadius: 6,
-                  offset: Offset(0, 4),
+                  offset: const Offset(0, 4),
                 ),
               ],
             ),
@@ -132,10 +132,15 @@ class ProductBox extends StatelessWidget {
                   children: [
                     ClipRRect(
                       borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-                      child: Container(
+                      child: SizedBox(
                         height: 120,
                         width: double.infinity,
-                        child: Image.network(product.picture, fit: BoxFit.cover),
+                        child: Image(
+                          image: _buildImageProvider(productData['picture'] ?? ''),
+                          height: 120,
+                          width: double.infinity,
+                          fit: BoxFit.cover,
+                        ),
                       ),
                     ),
                     if (isExpired)
@@ -152,9 +157,10 @@ class ProductBox extends StatelessWidget {
                           child: const Text(
                             'Expired',
                             style: TextStyle(
-                                color: Colors.red,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 12),
+                              color: Colors.red,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 12,
+                            ),
                           ),
                         ),
                       ),
@@ -201,6 +207,18 @@ class ProductBox extends StatelessWidget {
       },
     );
   }
+
+  ImageProvider _buildImageProvider(String path) {
+    if (path.startsWith('http')) {
+      return NetworkImage(path);
+    } else if (path.contains('assets/')) {
+      return AssetImage(path);
+    } else if (File(path).existsSync()) {
+      return FileImage(File(path));
+    } else {
+      return const AssetImage('assets/product.png');
+    }
+  }
 }
 
 class Product {
@@ -220,4 +238,3 @@ class Product {
 
   bool hasLowWeight() => currentWeight < minWeight;
 }
-

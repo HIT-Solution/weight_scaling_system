@@ -2,12 +2,12 @@ import 'package:weight_scale_v2/model/product_model.dart';
 import 'package:weight_scale_v2/model/scale_model.dart';
 
 class ProductWithWeight {
-  final String name;
-  final String picture;
-  final double minimumWeight;
-  final String expiredDate;
-  final String currentWeight;
-  final String rfidTag;
+   String name;
+   String picture;
+   double minimumWeight;
+   String expiredDate;
+   String currentWeight;
+   String rfidTag;
 
   ProductWithWeight({
     required this.name,

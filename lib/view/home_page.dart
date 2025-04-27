@@ -1,6 +1,7 @@
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:weight_scale_v2/controller/device_controller.dart';
 import 'package:weight_scale_v2/controller/product_controller.dart';
 import 'package:weight_scale_v2/view/products_view.dart';
 
@@ -23,7 +24,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  final ProductController productController = Get.put(ProductController());
+  final DeviceController productController = Get.put(DeviceController());
   BleState bleState = BleState.initial;
   final User? user = FirebaseAuth.instance.currentUser;
 
