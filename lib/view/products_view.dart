@@ -9,6 +9,8 @@ import '../model/product_model.dart';
 import '../model/product_with_weight_model.dart';
 import '../model/scale_model.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+
 
 class ProductView extends StatefulWidget {
   const ProductView({super.key});
@@ -104,14 +106,88 @@ class ProductBox extends StatelessWidget {
         }
 
         try {
-          final productData = Map<String, dynamic>.from(
-            snapshot.data!.snapshot.value as Map,
-          );
+          final productData = Map<String, dynamic>.from(snapshot.data!.snapshot.value as Map);
+
+          final double currentWeight = double.tryParse(product.currentWeight.toString()) ?? 0.0;
+          final double minimumWeight = double.tryParse(productData['minimumWeight']?.toString() ?? '0') ?? 0.0;
+
+          if (currentWeight < minimumWeight) {
+            Future.delayed(Duration.zero, () {
+              Get.snackbar(
+                "Low Weight Alert",
+                "${product.name} is below minimum! Minimum: ${minimumWeight}kg",
+                backgroundColor: const Color(0xFF2196F3).withOpacity(0.7),
+                colorText: Colors.white,
+                snackPosition: SnackPosition.TOP,
+                margin: const EdgeInsets.all(10),
+              );
+            });
+          }
+
+
 
           final String updatedExpiredDate = productData['expiredDate'] ?? '';
           final DateTime now = DateTime.now();
           final DateTime? expireDate = DateTime.tryParse(updatedExpiredDate.trim());
           final bool isExpired = expireDate != null && now.isAfter(expireDate);
+
+          String formattedExpireDate = '';
+          if (expireDate != null) {
+            const monthNames = [
+              '', 'January', 'February', 'March', 'April', 'May', 'June',
+              'July', 'August', 'September', 'October', 'November', 'December'
+            ];
+            formattedExpireDate = '${expireDate.day} ${monthNames[expireDate.month]}, ${expireDate.year}';
+          }
+
+          if (isExpired) {
+            Future.delayed(Duration.zero, () {
+              showDialog(
+                context: context,
+                builder: (context) => AlertDialog(
+                  title: const Text('Product Expired'),
+                  content: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      if ((productData['picture'] ?? '').toString().isNotEmpty)
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(10),
+                          child: Image(
+                            image: _buildImageProvider(productData['picture']),
+                            height: 100,
+                            width: 100,
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                      const SizedBox(height: 12),
+                      Text(
+                        '${productData['name'] ?? 'This product'} has expired.',
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(fontSize: 16),
+                      ),
+                    ],
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(context),
+                      child: const Text('OK'),
+                    ),
+                  ],
+                ),
+              );
+            });
+          }
+          //Here I am showing toast message for expired product.
+          // if (isExpired) {
+          //   Fluttertoast.showToast(
+          //     msg: "⚠️ ${productData['name'] ?? 'This product'} is expired!",
+          //     toastLength: Toast.LENGTH_SHORT,
+          //     gravity: ToastGravity.BOTTOM,
+          //     backgroundColor: Colors.redAccent,
+          //     textColor: Colors.white,
+          //     fontSize: 16.0,
+          //   );
+          // }
 
           return Container(
             decoration: BoxDecoration(
@@ -191,7 +267,7 @@ class ProductBox extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.only(left: 10, right: 10, bottom: 10),
                   child: Text(
-                    'Expire Date: $updatedExpiredDate',
+                    'Expire Date: $formattedExpireDate',
                     style: const TextStyle(
                       fontSize: 13,
                       color: Colors.black54,

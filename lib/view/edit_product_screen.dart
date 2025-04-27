@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -28,8 +29,12 @@ class _EditProductScreenState extends State<EditProductScreen> {
     super.initState();
     final product = productController.productList[widget.index];
     nameController = TextEditingController(text: product.name);
-    minQuantityController =
-        TextEditingController(text: product.minimumWeight.toString());
+    minQuantityController = TextEditingController(text: product.minimumWeight.toString());
+
+
+
+
+
 
     final rawDate = product.expiredDate.trim();
     print("expire date from db (raw): $rawDate");
@@ -160,6 +165,21 @@ class _EditProductScreenState extends State<EditProductScreen> {
       return Stack(
         children: [
           Scaffold(
+            appBar: AppBar(
+              backgroundColor: Colors.white,
+              elevation: 0,
+              leading: IconButton(
+                icon: const Icon(Icons.arrow_back, color: Colors.black),
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+              ),
+              // title: const Text(
+              //   'Edit Product',
+              //   style: TextStyle(color: Colors.black, fontSize: 20, fontWeight: FontWeight.bold),
+              // ),
+              // centerTitle: true,
+            ),
             backgroundColor: Colors.white,
             body: SafeArea(
               child: SingleChildScrollView(
@@ -201,6 +221,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
+
                         SizedBox(
                           width: 150,
                           child: TextField(
@@ -246,7 +267,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
                     CardRow(
                       icon: Icons.shopping_cart,
                       title: "Minimum Quantity",
-                      value: '${minQuantityController.text} gm',
+                      value: '${minQuantityController.text} kg',
                       onEdit: () async {
                         final TextEditingController tempController =
                             TextEditingController(
@@ -283,6 +304,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
                       },
                     ),
                     const SizedBox(height: 24),
+
                   ],
                 ),
               ),

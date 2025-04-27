@@ -21,6 +21,7 @@ dependencies:
   firebase_database:
   flutter_localization: ^0.3.2
   firebase_storage: ^12.4.5
+  fluttertoast: ^8.2.12
 
 dev_dependencies:
   flutter_test:
