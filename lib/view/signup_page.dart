@@ -172,6 +172,7 @@ class SignUpPage extends StatelessWidget {
                         "Login",
                         style: TextStyle(fontWeight: FontWeight.bold, color: Colors.blue,
                         fontSize: 16,decoration: TextDecoration.underline,
+                          decorationColor: Colors.blue,
                         ),
                       ),
                     ),

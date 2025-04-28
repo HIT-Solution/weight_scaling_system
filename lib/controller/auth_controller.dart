@@ -2,6 +2,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../view/home_page.dart';
+
 class AuthController extends GetxController {
   FirebaseAuth _auth = FirebaseAuth.instance;
   Rxn<User> _firebaseUser = Rxn<User>();
@@ -45,16 +47,24 @@ class AuthController extends GetxController {
 
       final response = await _auth.signInWithEmailAndPassword(
           email: email, password: password);
+
       print(response.user?.email);
       print(response.user?.uid);
       print(response.user?.displayName);
+
+      // ✅ After successful login, move to HomePage
+      Get.offAll(() => HomePage()); // <-- Add this line
+
       isLoading.value = false;
     } catch (e) {
       isLoading.value = false;
-
-      Get.snackbar("Error signing in", e.toString());
+      Get.snackbar("Error signing in", e.toString(),
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+          snackPosition: SnackPosition.BOTTOM);
     }
   }
+
 
   Future<void> signOut() async {
     await _auth.signOut();

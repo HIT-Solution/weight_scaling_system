@@ -68,6 +68,7 @@ class _HomePageState extends State<HomePage> {
       backgroundColor: Colors.white,
       appBar: AppBar(
         title: const Text("Weight Scale"),
+        backgroundColor: const Color(0xFFE3EAEF),
         actions: [
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 8),
@@ -86,11 +87,11 @@ class _HomePageState extends State<HomePage> {
                 decoration: BoxDecoration(
                   // You can change color
                   borderRadius: BorderRadius.circular(10),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.white.withOpacity(0.3),
+                  boxShadow: const [
+                  BoxShadow(
+                      color:  Color(0xFFE3EAEF),
                       blurRadius: 5,
-                      offset: const Offset(0, 3),
+                      offset: Offset(0, 3),
                     ),
                   ],
                 ),
@@ -113,7 +114,7 @@ class _HomePageState extends State<HomePage> {
                 children: [
                   const CircleAvatar(
                     radius: 40,
-                    backgroundColor: Colors.pinkAccent,
+                    backgroundColor: Colors.black54,
                     child: Icon(Icons.person, size: 50, color: Colors.white),
                   ),
                   const SizedBox(height: 10),

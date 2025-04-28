@@ -78,17 +78,26 @@ class _ProductViewState extends State<ProductView> {
   }
 }
 
-class ProductBox extends StatelessWidget {
+class ProductBox extends StatefulWidget {
   const ProductBox({super.key, required this.product});
 
   final ProductWithWeight product;
+
+  @override
+  State<ProductBox> createState() => _ProductBoxState();
+}
+
+class _ProductBoxState extends State<ProductBox> {
+  // Static sets to remember shown products
+  static final Set<String> shownLowWeightProducts = {};
+  static final Set<String> shownExpiredProducts = {};
 
   @override
   Widget build(BuildContext context) {
     final DatabaseReference productRef = FirebaseDatabase.instance
         .ref()
         .child('products')
-        .child(product.rfidTag);
+        .child(widget.product.rfidTag);
 
     return StreamBuilder<DatabaseEvent>(
       stream: productRef.onValue,
@@ -108,14 +117,15 @@ class ProductBox extends StatelessWidget {
         try {
           final productData = Map<String, dynamic>.from(snapshot.data!.snapshot.value as Map);
 
-          final double currentWeight = double.tryParse(product.currentWeight.toString()) ?? 0.0;
+          final double currentWeight = double.tryParse(widget.product.currentWeight.toString()) ?? 0.0;
           final double minimumWeight = double.tryParse(productData['minimumWeight']?.toString() ?? '0') ?? 0.0;
 
-          if (currentWeight < minimumWeight) {
+          if (currentWeight < minimumWeight && !shownLowWeightProducts.contains(widget.product.rfidTag)) {
+            shownLowWeightProducts.add(widget.product.rfidTag); // Remember shown product
             Future.delayed(Duration.zero, () {
               Get.snackbar(
                 "Low Weight Alert",
-                "${product.name} is below minimum! Minimum: ${minimumWeight}kg",
+                "${widget.product.name} is below minimum! Minimum: ${minimumWeight}kg",
                 backgroundColor: const Color(0xFF2196F3).withOpacity(0.7),
                 colorText: Colors.white,
                 snackPosition: SnackPosition.TOP,
@@ -123,8 +133,6 @@ class ProductBox extends StatelessWidget {
               );
             });
           }
-
-
 
           final String updatedExpiredDate = productData['expiredDate'] ?? '';
           final DateTime now = DateTime.now();
@@ -140,7 +148,8 @@ class ProductBox extends StatelessWidget {
             formattedExpireDate = '${expireDate.day} ${monthNames[expireDate.month]}, ${expireDate.year}';
           }
 
-          if (isExpired) {
+          if (isExpired && !shownExpiredProducts.contains(widget.product.rfidTag)) {
+            shownExpiredProducts.add(widget.product.rfidTag); // Remember shown expired
             Future.delayed(Duration.zero, () {
               showDialog(
                 context: context,
@@ -177,110 +186,103 @@ class ProductBox extends StatelessWidget {
               );
             });
           }
-          //Here I am showing toast message for expired product.
-          // if (isExpired) {
-          //   Fluttertoast.showToast(
-          //     msg: "⚠️ ${productData['name'] ?? 'This product'} is expired!",
-          //     toastLength: Toast.LENGTH_SHORT,
-          //     gravity: ToastGravity.BOTTOM,
-          //     backgroundColor: Colors.redAccent,
-          //     textColor: Colors.white,
-          //     fontSize: 16.0,
-          //   );
-          // }
 
-          return Container(
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(20),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
-                  blurRadius: 6,
-                  offset: const Offset(0, 4),
-                ),
-              ],
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Stack(
-                  children: [
-                    ClipRRect(
-                      borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-                      child: SizedBox(
-                        height: 120,
-                        width: double.infinity,
-                        child: Image(
-                          image: _buildImageProvider(productData['picture'] ?? ''),
-                          height: 120,
-                          width: double.infinity,
-                          fit: BoxFit.cover,
-                        ),
-                      ),
-                    ),
-                    if (isExpired)
-                      Positioned(
-                        top: 8,
-                        right: 8,
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                          decoration: BoxDecoration(
-                            border: Border.all(color: Colors.red),
-                            borderRadius: BorderRadius.circular(20),
-                            color: Colors.white,
-                          ),
-                          child: const Text(
-                            'Expired',
-                            style: TextStyle(
-                              color: Colors.red,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 12,
-                            ),
-                          ),
-                        ),
-                      ),
-                  ],
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                  child: Text(
-                    product.name,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black87,
-                    ),
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(left: 10, right: 10, bottom: 10),
-                  child: Text(
-                    'Current Weight : ${product.currentWeight}kg',
-                    style: const TextStyle(
-                      fontSize: 13,
-                      color: Colors.black54,
-                    ),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(left: 10, right: 10, bottom: 10),
-                  child: Text(
-                    'Expire Date: $formattedExpireDate',
-                    style: const TextStyle(
-                      fontSize: 13,
-                      color: Colors.black54,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          );
+          return _buildProductCard(productData, formattedExpireDate, isExpired);
         } catch (e) {
           return Center(child: Text("Parsing error: $e"));
         }
       },
+    );
+  }
+
+  Widget _buildProductCard(Map<String, dynamic> productData, String formattedExpireDate, bool isExpired) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 6,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Stack(
+            children: [
+              ClipRRect(
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+                child: SizedBox(
+                  height: 120,
+                  width: double.infinity,
+                  child: Image(
+                    image: _buildImageProvider(productData['picture'] ?? ''),
+                    height: 120,
+                    width: double.infinity,
+                    fit: BoxFit.cover,
+                  ),
+                ),
+              ),
+              if (isExpired)
+                Positioned(
+                  top: 8,
+                  right: 8,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.red),
+                      borderRadius: BorderRadius.circular(20),
+                      color: Colors.white,
+                    ),
+                    child: const Text(
+                      'Expired',
+                      style: TextStyle(
+                        color: Colors.red,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ),
+                ),
+            ],
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+            child: Text(
+              widget.product.name,
+              style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: Colors.black87,
+              ),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(left: 10, right: 10, bottom: 10),
+            child: Text(
+              'Current Weight : ${widget.product.currentWeight}kg',
+              style: const TextStyle(
+                fontSize: 13,
+                color: Colors.black54,
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(left: 10, right: 10, bottom: 10),
+            child: Text(
+              'Expire Date: $formattedExpireDate',
+              style: const TextStyle(
+                fontSize: 13,
+                color: Colors.black54,
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -296,6 +298,7 @@ class ProductBox extends StatelessWidget {
     }
   }
 }
+
 
 class Product {
   Product({

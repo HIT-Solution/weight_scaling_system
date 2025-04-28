@@ -95,7 +95,7 @@ class _NetworkPasswordScreenState extends State<NetworkPasswordScreen> {
       title,
       message,
       snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: title == 'Error' ? Colors.red : Colors.green,
+        backgroundColor: title == 'Error' ? Colors.red : Colors.blue[400],
       colorText: Colors.white,
       icon: Icon(
         title == 'Error' ? Icons.error : Icons.check_circle,
@@ -107,9 +107,9 @@ class _NetworkPasswordScreenState extends State<NetworkPasswordScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F9E9),
+      backgroundColor: const Color(0xFFFFFFFF),
       appBar: AppBar(
-        backgroundColor: const Color(0xFFF5F9E9),
+        backgroundColor: const Color(0xFFFDFDFD),
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios, color: Colors.black),
@@ -124,8 +124,9 @@ class _NetworkPasswordScreenState extends State<NetworkPasswordScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            _buildConnectionStatus(),
             const SizedBox(height: 20),
+            _buildConnectionStatus(),
+            const SizedBox(height: 40),
 
             _buildTextField(
               controller: _ssidController,
@@ -137,8 +138,8 @@ class _NetworkPasswordScreenState extends State<NetworkPasswordScreen> {
             _buildPasswordField(),
             const SizedBox(height: 16.0),
 
-            _buildEthernetInfo(),
-            const SizedBox(height: 16.0),
+            // _buildEthernetInfo(),
+            // const SizedBox(height: 16.0),
 
             // _buildTextField(
             //   controller: _deviceNameController,
@@ -154,7 +155,7 @@ class _NetworkPasswordScreenState extends State<NetworkPasswordScreen> {
                 child: ElevatedButton(
                   onPressed: _isLoading ? null : _sendCredentials,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.lightGreenAccent,
+                    backgroundColor: Colors.blue,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
@@ -190,10 +191,10 @@ class _NetworkPasswordScreenState extends State<NetworkPasswordScreen> {
     return Container(
       padding: const EdgeInsets.all(15),
       decoration: BoxDecoration(
-        color: Colors.green[100],
+        color: const Color(0xFF94C6F4),
         borderRadius: BorderRadius.circular(10),
         border: Border.all(
-          color: Colors.lightGreen,
+          color: const Color(0xFFE3EAEF),
           width: 1.5,
         ),
       ),
@@ -202,50 +203,57 @@ class _NetworkPasswordScreenState extends State<NetworkPasswordScreen> {
         children: const [
           Icon(
             Icons.wifi_rounded,
-            color: Colors.lightGreen,
+            color: Colors.black38,
           ),
           SizedBox(width: 10),
-          Text(
-            'Connected via Wi-Fi', // You can replace this with any static message
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: Color(0xFF1B5E20), // Equivalent to Colors.green[900]
+          Flexible(
+            child: Text(
+              'Enter your Wi-Fi SSID and password\nto connect the ESP to your network.',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF170C0C), // Uncommented for better text color
+              ),
+              textAlign: TextAlign.center,
             ),
           ),
         ],
       ),
     );
+
   }
+
+
 
 
   /// Ethernet Info Message
-  Widget _buildEthernetInfo() {
-    return Container(
-      margin: const EdgeInsets.symmetric(vertical: 10),
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Colors.green[100],
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: Colors.lightGreen, width: 1.5),
-      ),
-      child: Row(
-        children: [
-          Icon(Icons.info, color: Colors.green[900]),
-          const SizedBox(width: 8),
-          const Expanded(
-            child: Text(
-              'Ethernet connection is active. Please proceed.',
-              style: TextStyle(
-                fontSize: 14,
-                color: Color(0xFF1B5E20), // Equivalent to Colors.green[900]
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+  // Widget _buildEthernetInfo() {
+  //   return Container(
+  //     margin: const EdgeInsets.symmetric(vertical: 10),
+  //     padding: const EdgeInsets.all(12),
+  //     decoration: BoxDecoration(
+  //       color: Colors.green[100],
+  //       borderRadius: BorderRadius.circular(8),
+  //       border: Border.all(color: Colors.lightGreen, width: 1.5),
+  //     ),
+  //     child: Row(
+  //       children: [
+  //         Icon(Icons.info, color: Colors.green[900]),
+  //         const SizedBox(width: 8),
+  //         const Expanded(
+  //           child: Text(
+  //             'Ethernet connection is active. Please proceed.',
+  //             style: TextStyle(
+  //               fontSize: 14,
+  //               color: Color(0xFF1B5E20), // Equivalent to Colors.green[900]
+  //             ),
+  //           ),
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  // }
+
 
 
   /// Input Field with Icon
@@ -264,7 +272,7 @@ class _NetworkPasswordScreenState extends State<NetworkPasswordScreen> {
         hintText: hintText,
         prefixIcon: Icon(icon, color: Colors.blueGrey),
         filled: true,
-        fillColor: Colors.white,
+        fillColor: const Color(0xFFE3EAEF),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
           borderSide: BorderSide.none,
@@ -285,7 +293,7 @@ class _NetworkPasswordScreenState extends State<NetworkPasswordScreen> {
         suffixIcon: IconButton(
           icon: Icon(
             _isPasswordVisible ? Icons.visibility : Icons.visibility_off,
-            color: Colors.grey,
+            color: Colors.black38,
           ),
           onPressed: () {
             setState(() {
@@ -294,7 +302,7 @@ class _NetworkPasswordScreenState extends State<NetworkPasswordScreen> {
           },
         ),
         filled: true,
-        fillColor: Colors.white,
+        fillColor: const Color(0xFFE3EAEF),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
           borderSide: BorderSide.none,
