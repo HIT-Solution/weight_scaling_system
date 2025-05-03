@@ -1,0 +1,2 @@
+D:/weight_scaling_system/android/app/.cxx/Debug/e4l4g3c2/x86_64/CMakeFiles/edit_cache.dir
+D:/weight_scaling_system/android/app/.cxx/Debug/e4l4g3c2/x86_64/CMakeFiles/rebuild_cache.dir

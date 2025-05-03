@@ -1,0 +1,2 @@
+D:/weight_scaling_system/android/app/.cxx/Debug/e4l4g3c2/armeabi-v7a/CMakeFiles/edit_cache.dir
+D:/weight_scaling_system/android/app/.cxx/Debug/e4l4g3c2/armeabi-v7a/CMakeFiles/rebuild_cache.dir
