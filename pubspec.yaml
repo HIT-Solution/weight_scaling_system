@@ -23,6 +23,7 @@ dependencies:
   firebase_storage: ^12.4.5
   fluttertoast: ^8.2.12
   cloud_functions: ^5.4.0
+  firebase_app_check: ^0.3.2+5
 
 dev_dependencies:
   flutter_test:

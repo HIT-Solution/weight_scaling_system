@@ -6,13 +6,16 @@ import 'package:image_picker/image_picker.dart';
 import '../model/product_model.dart';
 import '../model/scale_model.dart';
 import '../model/product_with_weight_model.dart';
+import '../utils/notification_service.dart'; // must contain triggerEmail()
 
 class DeviceController extends GetxController {
   final databaseRef = FirebaseDatabase.instance.ref();
   var searchQuery = ''.obs;
   var productList = <ProductWithWeight>[].obs;
 
-  final picker = ImagePicker(); // Add this if using image picker in screen
+  final picker = ImagePicker();
+  final sentLowWeightEmails = <String>{}.obs;
+  final sentExpiredEmails = <String>{}.obs;
 
   @override
   void onInit() {
@@ -21,14 +24,22 @@ class DeviceController extends GetxController {
   }
 
   void listenToScalesAndBuildProductList() {
-    final userId = FirebaseAuth.instance.currentUser?.uid;
+    final user = FirebaseAuth.instance.currentUser;
+
+    if (user == null) {
+      print("⚠️ No user signed in. Skipping scale listener.");
+      return;
+    }
+
+    final userId = user.uid;
+    final userEmail = user.email ?? '';
 
     databaseRef.child('users/$userId/scales').onValue.listen((event) async {
       if (!event.snapshot.exists) return;
 
       final raw = event.snapshot.value;
       if (raw is! Map) {
-        print("❌ Scales root is not a Map: \${raw.runtimeType}");
+        print("❌ Scales root is not a Map: ${raw.runtimeType}");
         return;
       }
 
@@ -36,7 +47,7 @@ class DeviceController extends GetxController {
       final productSnap = await databaseRef.child('products').get();
 
       if (!productSnap.exists) {
-        print("❌ No productName data found");
+        print("❌ No product data found");
         return;
       }
 
@@ -44,7 +55,6 @@ class DeviceController extends GetxController {
       List<ProductWithWeight> tempList = [];
 
       for (var entry in scaleMap.entries) {
-        final key = entry.key;
         final value = entry.value;
 
         if (value is Map) {
@@ -59,12 +69,48 @@ class DeviceController extends GetxController {
               final combined = ProductWithWeight.fromCombined(
                   product: product, scale: scaleData);
               tempList.add(combined);
+
+              final currentWeight =
+                  double.tryParse(scaleData.currentWeight.toString()) ?? 0.0;
+              final minWeight =
+                  double.tryParse(product.minimumWeight.toString()) ?? 0.0;
+              final tag = scaleData.rfidTag?.toString() ?? '';
+              print("triggerEmail 1");
+              if (userEmail.isNotEmpty &&
+                  currentWeight < minWeight &&
+                  !sentLowWeightEmails.contains(tag)) {
+                print("triggerEmail 2");
+                await triggerEmail(
+                  emailType: 'minimumWeight',
+                  productName: product.name,
+                  userEmail: userEmail,
+                );
+                print("triggerEmail 3");
+                sentLowWeightEmails.add(tag);
+              }
+              print("triggerEmail 4");
+
+              final expiredDate = product.expiredDate;
+              final isExpired = expiredDate != null &&
+                  DateTime.tryParse(expiredDate)?.isBefore(DateTime.now()) ==
+                      true;
+
+              if (userEmail.isNotEmpty &&
+                  isExpired &&
+                  !sentExpiredEmails.contains(tag)) {
+                await triggerEmail(
+                  emailType: 'expired',
+                  productName: product.name,
+                  userEmail: userEmail,
+                );
+                sentExpiredEmails.add(tag);
+              }
             }
           } catch (e) {
-            print('❌ Error with \$key: \$e');
+            print('❌ Error processing scale data: $e');
           }
         } else {
-          print('❌ Skipped \$key: not a Map');
+          print('❌ Skipped invalid scale entry');
         }
       }
 
@@ -100,30 +146,25 @@ class DeviceController extends GetxController {
     final product = productList[index];
     product.minimumWeight = weight;
     productList[index] = product;
-    print("minimum 1");
+
     final userId = FirebaseAuth.instance.currentUser?.uid;
     if (userId != null) {
-      print("minimum 133");
       await databaseRef
           .child('products/${product.rfidTag}/minimumWeight')
           .set(weight);
     }
-    print("minimum 13377");
   }
 
   Future<void> updateProductExpiryDate(int index, String date) async {
     final product = productList[index];
     product.expiredDate = date;
     productList[index] = product;
-    print("minimum 1366");
 
     final userId = FirebaseAuth.instance.currentUser?.uid;
     if (userId != null) {
-      print("minimum 13677");
       await databaseRef
           .child('products/${product.rfidTag}/expiredDate')
           .set(date);
     }
-    print("minimum 13677000");
   }
 }
