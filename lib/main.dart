@@ -9,16 +9,14 @@ import 'package:weight_scale_v2/view/login_page.dart';
 import 'package:weight_scale_v2/controller/product_controller.dart';
 import 'package:weight_scale_v2/view/products_view.dart';
 
+import 'controller/device_controller.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
+   options: DefaultFirebaseOptions.currentPlatform,
   );
-  // await FirebaseAppCheck.instance.activate(
-  //   webProvider: ReCaptchaV3Provider('recaptcha-v3-site-key'),
-  //   androidProvider: AndroidProvider.debug,
-  //   appleProvider: AppleProvider.appAttest,
-  // );
+
 
   runApp(GetMaterialApp(
     debugShowCheckedModeBanner: false,
@@ -79,6 +77,8 @@ class LandingPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    Get.put(DeviceController()); // usually at app start
+
     return Obx(() {
       if (_authController.user != null) {
         return HomePage(); // Assuming you have a HomePage widget

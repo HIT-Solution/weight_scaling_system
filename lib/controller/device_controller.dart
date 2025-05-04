@@ -20,9 +20,18 @@ class DeviceController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    listenToScalesAndBuildProductList();
+    // Commented out default call, will call manually from AuthController
+    // listenToScalesAndBuildProductList();
   }
 
+  /// ✅ Clears all reactive data for logout or user switch
+  void clearData() {
+    productList.clear();
+    sentLowWeightEmails.clear();
+    sentExpiredEmails.clear();
+  }
+
+  /// ✅ Loads and listens to scale data for the current user
   void listenToScalesAndBuildProductList() {
     final user = FirebaseAuth.instance.currentUser;
 
@@ -60,12 +69,12 @@ class DeviceController extends GetxController {
         if (value is Map) {
           try {
             final scaleData =
-                ScaleModel.fromMap(Map<String, dynamic>.from(value));
+            ScaleModel.fromMap(Map<String, dynamic>.from(value));
             final productData = productMap[scaleData.rfidTag];
 
             if (productData != null && productData is Map) {
               final product =
-                  ProductModel.fromMap(Map<String, dynamic>.from(productData));
+              ProductModel.fromMap(Map<String, dynamic>.from(productData));
               final combined = ProductWithWeight.fromCombined(
                   product: product, scale: scaleData);
               tempList.add(combined);
@@ -75,20 +84,17 @@ class DeviceController extends GetxController {
               final minWeight =
                   double.tryParse(product.minimumWeight.toString()) ?? 0.0;
               final tag = scaleData.rfidTag?.toString() ?? '';
-              print("triggerEmail 1");
+
               if (userEmail.isNotEmpty &&
                   currentWeight < minWeight &&
                   !sentLowWeightEmails.contains(tag)) {
-                print("triggerEmail 2");
                 await triggerEmail(
                   emailType: 'minimumWeight',
                   productName: product.name,
                   userEmail: userEmail,
                 );
-                print("triggerEmail 3");
                 sentLowWeightEmails.add(tag);
               }
-              print("triggerEmail 4");
 
               final expiredDate = product.expiredDate;
               final isExpired = expiredDate != null &&
