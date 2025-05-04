@@ -21,7 +21,7 @@ class DeviceController extends GetxController {
   void onInit() {
     super.onInit();
     // Commented out default call, will call manually from AuthController
-    // listenToScalesAndBuildProductList();
+     listenToScalesAndBuildProductList();
   }
 
   /// ✅ Clears all reactive data for logout or user switch
@@ -85,32 +85,14 @@ class DeviceController extends GetxController {
                   double.tryParse(product.minimumWeight.toString()) ?? 0.0;
               final tag = scaleData.rfidTag?.toString() ?? '';
 
-              if (userEmail.isNotEmpty &&
-                  currentWeight < minWeight &&
-                  !sentLowWeightEmails.contains(tag)) {
-                await triggerEmail(
-                  emailType: 'minimumWeight',
-                  productName: product.name,
-                  userEmail: userEmail,
-                );
-                sentLowWeightEmails.add(tag);
-              }
+
 
               final expiredDate = product.expiredDate;
               final isExpired = expiredDate != null &&
                   DateTime.tryParse(expiredDate)?.isBefore(DateTime.now()) ==
                       true;
 
-              if (userEmail.isNotEmpty &&
-                  isExpired &&
-                  !sentExpiredEmails.contains(tag)) {
-                await triggerEmail(
-                  emailType: 'expired',
-                  productName: product.name,
-                  userEmail: userEmail,
-                );
-                sentExpiredEmails.add(tag);
-              }
+
             }
           } catch (e) {
             print('❌ Error processing scale data: $e');

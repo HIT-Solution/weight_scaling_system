@@ -61,36 +61,36 @@ class _HomePageState extends State<HomePage> {
         appBar: AppBar(
           title: const Text("Weight Scale"),
           backgroundColor: const Color(0xFFE3EAEF),
-          actions: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 8),
-              child: InkWell(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => NetworkPasswordScreen(),
-                    ),
-                  );
-                },
-                borderRadius: BorderRadius.circular(30),
-                child: Container(
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(10),
-                    boxShadow: const [
-                      BoxShadow(
-                        color: Color(0xFFE3EAEF),
-                        blurRadius: 5,
-                        offset: Offset(0, 3),
-                      ),
-                    ],
-                  ),
-                  child: const Icon(Icons.add, size: 28, color: Colors.black),
-                ),
-              ),
-            ),
-          ],
+          // actions: [
+          //   Padding(
+          //     padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 8),
+          //     child: InkWell(
+          //       onTap: () {
+          //         Navigator.push(
+          //           context,
+          //           MaterialPageRoute(
+          //             builder: (context) => NetworkPasswordScreen(),
+          //           ),
+          //         );
+          //       },
+          //       borderRadius: BorderRadius.circular(30),
+          //       child: Container(
+          //         padding: const EdgeInsets.all(10),
+          //         decoration: BoxDecoration(
+          //           borderRadius: BorderRadius.circular(10),
+          //           boxShadow: const [
+          //             BoxShadow(
+          //               color: Color(0xFFE3EAEF),
+          //               blurRadius: 5,
+          //               offset: Offset(0, 3),
+          //             ),
+          //           ],
+          //         ),
+          //         child: const Icon(Icons.add, size: 28, color: Colors.black),
+          //       ),
+          //     ),
+          //   ),
+          // ],
         ),
         drawer: Drawer(
           child: Column(

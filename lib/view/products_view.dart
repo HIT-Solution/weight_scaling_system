@@ -86,7 +86,7 @@ class ProductBox extends StatefulWidget {
   @override
   State<ProductBox> createState() => _ProductBoxState();
 }
-
+bool isFirstTime =true;
 class _ProductBoxState extends State<ProductBox> {
   // Static sets to remember shown products
   static final Set<String> shownLowWeightProducts = {};
@@ -102,7 +102,8 @@ class _ProductBoxState extends State<ProductBox> {
     return StreamBuilder<DatabaseEvent>(
       stream: productRef.onValue,
       builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
+        if (snapshot.connectionState == ConnectionState.waiting && isFirstTime) {
+          isFirstTime =false;
           return const Center(child: CircularProgressIndicator());
         }
 
